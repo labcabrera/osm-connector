@@ -1,4 +1,4 @@
-package org.lab.osm.connector.jdbc.metadata.model;
+package org.lab.osm.connector.metadata.model;
 
 import java.util.ArrayList;
 import java.util.List;

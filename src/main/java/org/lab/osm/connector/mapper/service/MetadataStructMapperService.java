@@ -4,9 +4,9 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.lab.osm.connector.jdbc.metadata.MetadataCollector;
-import org.lab.osm.connector.jdbc.metadata.model.OracleMappingData;
 import org.lab.osm.connector.mapper.StructDefinitionService;
+import org.lab.osm.connector.metadata.MetadataCollector;
+import org.lab.osm.connector.metadata.model.OracleMappingData;
 import org.springframework.data.jdbc.support.oracle.StructMapper;
 
 public class MetadataStructMapperService implements StructMapperService {

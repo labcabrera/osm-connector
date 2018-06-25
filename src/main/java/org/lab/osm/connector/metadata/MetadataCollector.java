@@ -1,4 +1,4 @@
-package org.lab.osm.connector.jdbc.metadata;
+package org.lab.osm.connector.metadata;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -16,9 +16,9 @@ import javax.sql.DataSource;
 import org.lab.osm.connector.annotation.OracleCollection;
 import org.lab.osm.connector.annotation.OracleField;
 import org.lab.osm.connector.annotation.OracleStruct;
-import org.lab.osm.connector.jdbc.metadata.model.OracleMappingData;
-import org.lab.osm.connector.jdbc.metadata.model.OracleMappingField;
-import org.lab.osm.connector.jdbc.metadata.model.OracleMappingStructData;
+import org.lab.osm.connector.metadata.model.OracleMappingData;
+import org.lab.osm.connector.metadata.model.OracleMappingField;
+import org.lab.osm.connector.metadata.model.OracleMappingStructData;
 import org.reflections.Reflections;
 
 import lombok.extern.slf4j.Slf4j;

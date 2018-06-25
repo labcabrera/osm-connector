@@ -4,6 +4,7 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.lab.osm.connector.mapper.MetadataStructMapper;
 import org.lab.osm.connector.mapper.StructDefinitionService;
 import org.lab.osm.connector.metadata.MetadataCollector;
 import org.lab.osm.connector.metadata.model.OracleMappingData;

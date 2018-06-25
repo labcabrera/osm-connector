@@ -1,14 +1,15 @@
-package org.lab.osm.connector.mapper.service;
+package org.lab.osm.connector.mapper;
 
 import java.sql.Connection;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
 
 import org.lab.osm.connector.exception.OsmMappingException;
-import org.lab.osm.connector.mapper.StructDefinitionService;
+import org.lab.osm.connector.mapper.service.StructMapperService;
 import org.lab.osm.connector.metadata.model.OracleMappingData;
 import org.lab.osm.connector.metadata.model.OracleMappingField;
 import org.lab.osm.connector.metadata.model.OracleMappingStructData;
@@ -126,6 +127,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Object resolveMappedValue(OracleMappingField mappingField, BeanWrapper sourceBeanWrapper,
 		Connection connection) throws SQLException {
+
 		Object result = null;
 		if (!mappingField.getMapped()) {
 			log.warn("Unmapped field {} in {}", mappingField.getOracleColumnName(), mappedClass.getName());
@@ -136,21 +138,20 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 				log.debug("Mapped {} to field {}", javaFieldName, mappingField.getOracleColumnName());
 				result = sourceBeanWrapper.getPropertyValue(javaFieldName);
 
-				// check recursive conversion
 				if (result != null) {
-					if (OracleArray.class.getName().equals(mappingField.getOracleColumnClassName())) {
+
+					if (Date.class.isAssignableFrom(result.getClass())) {
+						return new java.sql.Date(((Date) result).getTime());
+					}
+					else if (OracleArray.class.getName().equals(mappingField.getOracleColumnClassName())) {
 						log.debug("Detected oracle list mapping");
 						Assert.isTrue(List.class.isAssignableFrom(result.getClass()), "Expected list");
 						result = resolveMappedArrayValue(mappingField, (List) result, connection);
 					}
 					else {
 						Class<?> resultClass = result.getClass();
-					//@formatter:off
-					OracleMappingStructData structCandidate = metadata.getStructs().stream()
-						.filter(x -> resultClass.equals(x.getMappedClass()))
-						.findFirst()
-						.orElseGet(() -> null);
-					//@formatter:on
+						OracleMappingStructData structCandidate = metadata.getStructs().stream()
+							.filter(x -> resultClass.equals(x.getMappedClass())).findFirst().orElseGet(() -> null);
 						if (structCandidate == null) {
 							return result;
 						}

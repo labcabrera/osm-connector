@@ -4,8 +4,6 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import oracle.sql.ArrayDescriptor;
 import oracle.sql.StructDescriptor;
@@ -19,7 +17,6 @@ import oracle.sql.StructDescriptor;
 // TODO estudiar estrategias para almacenar el descriptor: cache, ficheros , etc.
 // TODO estudiar si se desea separar la parte de generacion de los ficheros de serializados o si es mejor generarlos una
 // unica vez bajo demanda cuando se solicita por primera vez un tipo dado.
-@Component
 @Slf4j
 public class StructDefinitionService {
 

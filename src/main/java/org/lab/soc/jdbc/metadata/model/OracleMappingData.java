@@ -2,6 +2,7 @@ package org.lab.soc.jdbc.metadata.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +21,10 @@ public class OracleMappingData {
 
 	public void register(OracleMappingStructData data) {
 		structs.add(data);
+	}
+
+	public Optional<OracleMappingStructData> findStructByMappingClass(Class<?> mappingClass) {
+		return structs.stream().filter(x -> x.getMappedClass().equals(mappingClass)).findFirst();
 	}
 
 }

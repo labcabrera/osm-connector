@@ -1,6 +1,7 @@
 package org.lab.soc.jdbc.metadata;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -67,7 +68,7 @@ public class MetadataCollector {
 	}
 
 	private void mapOracleMetaData(OracleMappingStructData result, String structName, Connection connection)
-			throws SQLException {
+		throws SQLException {
 		StructDescriptor desc = new StructDescriptor(structName, connection);
 		ResultSetMetaData metaData = desc.getMetaData();
 		int count = metaData.getColumnCount();
@@ -83,7 +84,13 @@ public class MetadataCollector {
 	}
 
 	private void mapFields(OracleMappingStructData data, Class<?> structClass) {
+		UnaryOperator<String> nameNormalizer = x -> x.toUpperCase().replaceAll("_", "");
+
 		for (Field field : structClass.getDeclaredFields()) {
+			if (Modifier.isStatic(field.getModifiers())) {
+				log.trace("Ignoring static field {}", field.getName());
+				continue;
+			}
 
 			String fieldName = field.getName();
 			OracleField oracleField = field.getAnnotation(OracleField.class);
@@ -91,18 +98,17 @@ public class MetadataCollector {
 
 			OracleMappingField target = null;
 
-			UnaryOperator<String> nameNormalizer = x -> x.toUpperCase().replaceAll("_", "");
-
-			String fieldNameMatch = nameNormalizer.apply(fieldName);
-			Predicate<OracleMappingField> fieldPredicate = x -> fieldNameMatch
-					.equals(nameNormalizer.apply(x.getOracleColumnName()));
-
 			if (oracleCollection != null) {
 				String collectionName = oracleCollection.value();
+
+				String fieldNameMatch = nameNormalizer.apply(fieldName);
+				Predicate<OracleMappingField> fieldPredicate = x -> fieldNameMatch
+					.equals(nameNormalizer.apply(x.getOracleColumnName()));
+
 				log.debug("Mapping field '{}' as a collection '{}'", fieldName, collectionName);
 
 				List<OracleMappingField> collect = data.getFields().stream().filter(fieldPredicate)
-						.collect(Collectors.toList());
+					.collect(Collectors.toList());
 
 				switch (collect.size()) {
 				case 1:
@@ -114,25 +120,35 @@ public class MetadataCollector {
 				case 0:
 					OracleMappingField newMapping = new OracleMappingField();
 					bindFieldInfo(newMapping, field);
-					data.registerField(newMapping);
+					data.registerUnmappedField(newMapping);
 					break;
 				default:
 					throw new RuntimeException("Multiple candidates for field " + field.getName() + "("
-							+ field.getDeclaringClass().getName() + ")");
+						+ field.getDeclaringClass().getName() + ")");
 				}
 
 				bindFieldInfo(target, field);
 				target.setMapped(true);
 
 				// TODO map collection info
-			} else if (oracleField != null) {
+			}
+			else {
+
+				String fieldNameMatch;
+				Predicate<OracleMappingField> fieldPredicate;
+				if (oracleField != null) {
+					fieldNameMatch = nameNormalizer.apply(oracleField.value());
+				}
+				else {
+					fieldNameMatch = nameNormalizer.apply(fieldName);
+				}
+				fieldPredicate = x -> fieldNameMatch.equals(nameNormalizer.apply(x.getOracleColumnName()));
+
 				String oracleName = oracleField.value();
 				log.debug("Mapping field '{}' as '{}'", fieldName, oracleName);
-			} else {
-				log.debug("Mapping field as default");
 
 				List<OracleMappingField> collect = data.getFields().stream().filter(fieldPredicate)
-						.collect(Collectors.toList());
+					.collect(Collectors.toList());
 
 				switch (collect.size()) {
 				case 1:
@@ -144,14 +160,41 @@ public class MetadataCollector {
 				case 0:
 					OracleMappingField newMapping = new OracleMappingField();
 					bindFieldInfo(newMapping, field);
-					data.registerField(newMapping);
+					data.registerUnmappedField(newMapping);
 					break;
 				default:
 					throw new RuntimeException("Multiple candidates for field " + field.getName() + "("
-							+ field.getDeclaringClass().getName() + ")");
+						+ field.getDeclaringClass().getName() + ")");
 				}
 
+				bindFieldInfo(target, field);
+				target.setMapped(true);
+
 			}
+			// else {
+			// log.debug("Mapping field as default");
+			//
+			// List<OracleMappingField> collect = data.getFields().stream().filter(fieldPredicate)
+			// .collect(Collectors.toList());
+			//
+			// switch (collect.size()) {
+			// case 1:
+			// target = collect.iterator().next();
+			// log.debug("Oracle bind {}", target.getOracleColumnName());
+			// bindFieldInfo(target, field);
+			// target.setMapped(true);
+			// break;
+			// case 0:
+			// OracleMappingField newMapping = new OracleMappingField();
+			// bindFieldInfo(newMapping, field);
+			// data.registerUnmappedField(newMapping);
+			// break;
+			// default:
+			// throw new RuntimeException("Multiple candidates for field " + field.getName() + "("
+			// + field.getDeclaringClass().getName() + ")");
+			// }
+			//
+			// }
 
 		}
 	}

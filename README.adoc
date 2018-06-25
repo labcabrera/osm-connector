@@ -1,0 +1,2 @@
+= Oracle Struct Metadata Connector
+

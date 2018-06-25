@@ -1,4 +1,4 @@
-package org.lab.soc.jdbc.mapper;
+package org.lab.osm.connector.mapper.service;
 
 import org.springframework.data.jdbc.support.oracle.StructMapper;
 

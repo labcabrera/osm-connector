@@ -1,7 +1,7 @@
-package org.lab.soc.jdbc.mapper;
+package org.lab.osm.connector.mapper.service;
 
-import org.lab.soc.jdbc.CustomStructMapper;
-import org.lab.soc.jdbc.StructDefinitionService;
+import org.lab.osm.connector.mapper.CustomStructMapper;
+import org.lab.osm.connector.mapper.StructDefinitionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jdbc.support.oracle.StructMapper;
 

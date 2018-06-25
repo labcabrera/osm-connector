@@ -1,8 +1,8 @@
-package org.lab.soc.config;
+package org.lab.osm.connector.config;
 
-import org.lab.soc.jdbc.mapper.AnnotationStructMapperService;
-import org.lab.soc.jdbc.mapper.CustomStructMapperService;
-import org.lab.soc.jdbc.mapper.StructMapperService;
+import org.lab.osm.connector.mapper.service.AnnotationStructMapperService;
+import org.lab.osm.connector.mapper.service.CustomStructMapperService;
+import org.lab.osm.connector.mapper.service.StructMapperService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

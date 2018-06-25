@@ -1,7 +1,7 @@
-package org.lab.soc.jdbc.mapper;
+package org.lab.osm.connector.mapper.service;
 
-import org.lab.soc.jdbc.AnnotationStructMapper;
-import org.lab.soc.jdbc.StructDefinitionService;
+import org.lab.osm.connector.mapper.AnnotationStructMapper;
+import org.lab.osm.connector.mapper.StructDefinitionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jdbc.support.oracle.StructMapper;
 

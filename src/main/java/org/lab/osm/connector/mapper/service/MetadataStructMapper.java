@@ -1,4 +1,4 @@
-package org.lab.soc.jdbc.mapper;
+package org.lab.osm.connector.mapper.service;
 
 import java.sql.Connection;
 import java.sql.ResultSetMetaData;
@@ -7,10 +7,10 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
-import org.lab.soc.jdbc.StructDefinitionService;
-import org.lab.soc.jdbc.metadata.model.OracleMappingData;
-import org.lab.soc.jdbc.metadata.model.OracleMappingField;
-import org.lab.soc.jdbc.metadata.model.OracleMappingStructData;
+import org.lab.osm.connector.jdbc.metadata.model.OracleMappingData;
+import org.lab.osm.connector.jdbc.metadata.model.OracleMappingField;
+import org.lab.osm.connector.jdbc.metadata.model.OracleMappingStructData;
+import org.lab.osm.connector.mapper.StructDefinitionService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -73,7 +73,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 
 	@Override
 	public T fromStruct(STRUCT struct) throws SQLException {
-		T mappedObject = BeanUtils.instantiateClass(mappedClass);
+		T mappedObject =  BeanUtils.instantiateClass(mappedClass);
 		BeanWrapper beanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(mappedObject);
 
 		String typeName = struct.getSQLTypeName();

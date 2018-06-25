@@ -1,4 +1,4 @@
-package org.lab.soc.jdbc;
+package org.lab.osm.connector.mapper;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -8,8 +8,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lab.soc.annotation.OracleField;
-import org.lab.soc.annotation.OracleStruct;
+import org.lab.osm.connector.annotation.OracleField;
+import org.lab.osm.connector.annotation.OracleStruct;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -31,7 +31,7 @@ import oracle.sql.StructDescriptor;
  *
  * @param <T> Mapped class.
  * 
- * @see org.lab.soc.annotation.OracleField
+ * @see org.lab.osm.connector.annotation.OracleField
  */
 @Slf4j
 public class AnnotationStructMapper<T> implements StructMapper<T> {

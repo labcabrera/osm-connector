@@ -1,4 +1,4 @@
-package org.lab.soc.jdbc;
+package org.lab.osm.connector.mapper;
 
 import java.sql.CallableStatement;
 import java.sql.SQLException;

@@ -1,2 +1,3 @@
 = Oracle Struct Metadata Connector
 
+osm-connector

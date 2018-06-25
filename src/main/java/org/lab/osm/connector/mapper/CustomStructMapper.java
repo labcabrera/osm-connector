@@ -1,4 +1,4 @@
-package org.lab.soc.jdbc;
+package org.lab.osm.connector.mapper;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -9,9 +9,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.lab.soc.annotation.OracleCollection;
-import org.lab.soc.annotation.OracleStruct;
-import org.lab.soc.jdbc.mapper.StructMapperService;
+import org.lab.osm.connector.annotation.OracleCollection;
+import org.lab.osm.connector.annotation.OracleStruct;
+import org.lab.osm.connector.mapper.service.StructMapperService;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.NotReadablePropertyException;

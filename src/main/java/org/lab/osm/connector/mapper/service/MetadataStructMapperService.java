@@ -1,12 +1,12 @@
-package org.lab.soc.jdbc.mapper;
+package org.lab.osm.connector.mapper.service;
 
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.lab.soc.jdbc.StructDefinitionService;
-import org.lab.soc.jdbc.metadata.MetadataCollector;
-import org.lab.soc.jdbc.metadata.model.OracleMappingData;
+import org.lab.osm.connector.jdbc.metadata.MetadataCollector;
+import org.lab.osm.connector.jdbc.metadata.model.OracleMappingData;
+import org.lab.osm.connector.mapper.StructDefinitionService;
 import org.springframework.data.jdbc.support.oracle.StructMapper;
 
 public class MetadataStructMapperService implements StructMapperService {

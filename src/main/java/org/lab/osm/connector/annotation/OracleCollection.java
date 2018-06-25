@@ -1,19 +1,16 @@
-package org.lab.soc.annotation;
+package org.lab.osm.connector.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Annotation used to resolve Oracle name of a given java entity.
- */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface OracleStruct {
+@Target(ElementType.FIELD)
+public @interface OracleCollection {
 
 	/**
-	 * Oracle entity name.
+	 * Oracle collection name.
 	 * 
 	 * @return
 	 */

@@ -1,4 +1,4 @@
-package org.lab.soc.jdbc.metadata;
+package org.lab.osm.connector.jdbc.metadata;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -13,12 +13,12 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.lab.soc.annotation.OracleCollection;
-import org.lab.soc.annotation.OracleField;
-import org.lab.soc.annotation.OracleStruct;
-import org.lab.soc.jdbc.metadata.model.OracleMappingData;
-import org.lab.soc.jdbc.metadata.model.OracleMappingField;
-import org.lab.soc.jdbc.metadata.model.OracleMappingStructData;
+import org.lab.osm.connector.annotation.OracleCollection;
+import org.lab.osm.connector.annotation.OracleField;
+import org.lab.osm.connector.annotation.OracleStruct;
+import org.lab.osm.connector.jdbc.metadata.model.OracleMappingData;
+import org.lab.osm.connector.jdbc.metadata.model.OracleMappingField;
+import org.lab.osm.connector.jdbc.metadata.model.OracleMappingStructData;
 import org.reflections.Reflections;
 
 import lombok.extern.slf4j.Slf4j;

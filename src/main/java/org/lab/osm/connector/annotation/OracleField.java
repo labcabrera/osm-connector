@@ -1,4 +1,4 @@
-package org.lab.soc.annotation;
+package org.lab.osm.connector.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,10 +7,10 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface OracleCollection {
+public @interface OracleField {
 
 	/**
-	 * Oracle collection name.
+	 * Oracle entity name.
 	 * 
 	 * @return
 	 */

@@ -1,4 +1,4 @@
-package org.lab.osm.connector.metadata.model;
+package org.lab.osm.connector.model;
 
 import lombok.Getter;
 import lombok.Setter;

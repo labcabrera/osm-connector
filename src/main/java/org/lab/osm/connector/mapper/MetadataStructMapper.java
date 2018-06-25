@@ -9,10 +9,10 @@ import java.util.Optional;
 import java.util.function.UnaryOperator;
 
 import org.lab.osm.connector.exception.OsmMappingException;
-import org.lab.osm.connector.mapper.service.StructMapperService;
-import org.lab.osm.connector.metadata.model.OracleMappingData;
-import org.lab.osm.connector.metadata.model.OracleMappingField;
-import org.lab.osm.connector.metadata.model.OracleMappingStructData;
+import org.lab.osm.connector.model.OracleMappingData;
+import org.lab.osm.connector.model.OracleMappingField;
+import org.lab.osm.connector.model.OracleMappingStructData;
+import org.lab.osm.connector.service.StructMapperService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;

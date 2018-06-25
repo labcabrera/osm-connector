@@ -16,9 +16,9 @@ import javax.sql.DataSource;
 import org.lab.osm.connector.annotation.OracleCollection;
 import org.lab.osm.connector.annotation.OracleField;
 import org.lab.osm.connector.annotation.OracleStruct;
-import org.lab.osm.connector.metadata.model.OracleMappingData;
-import org.lab.osm.connector.metadata.model.OracleMappingField;
-import org.lab.osm.connector.metadata.model.OracleMappingStructData;
+import org.lab.osm.connector.model.OracleMappingData;
+import org.lab.osm.connector.model.OracleMappingField;
+import org.lab.osm.connector.model.OracleMappingStructData;
 import org.reflections.Reflections;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,17 +40,12 @@ public class MetadataCollector {
 	}
 
 	public OracleMappingData readMetadata(String packageName, Connection connection) throws SQLException {
-
 		Set<Class<?>> structs = new Reflections(packageName).getTypesAnnotatedWith(OracleStruct.class);
-
 		OracleMappingData result = new OracleMappingData();
 		result.setPackageName(packageName);
-
 		for (Class<?> structClass : structs) {
 			log.info("Loading class {}", structClass.getName());
-
 			result.register(loadStructData(structClass, connection));
-
 		}
 		return result;
 
@@ -144,8 +139,6 @@ public class MetadataCollector {
 				}
 				fieldPredicate = x -> fieldNameMatch.equals(nameNormalizer.apply(x.getOracleColumnName()));
 
-				// log.debug("Mapping field '{}' as '{}'", fieldName, oracleName);
-
 				List<OracleMappingField> collect = data.getFields().stream().filter(fieldPredicate)
 					.collect(Collectors.toList());
 
@@ -170,37 +163,11 @@ public class MetadataCollector {
 				target.setMapped(true);
 
 			}
-			// else {
-			// log.debug("Mapping field as default");
-			//
-			// List<OracleMappingField> collect = data.getFields().stream().filter(fieldPredicate)
-			// .collect(Collectors.toList());
-			//
-			// switch (collect.size()) {
-			// case 1:
-			// target = collect.iterator().next();
-			// log.debug("Oracle bind {}", target.getOracleColumnName());
-			// bindFieldInfo(target, field);
-			// target.setMapped(true);
-			// break;
-			// case 0:
-			// OracleMappingField newMapping = new OracleMappingField();
-			// bindFieldInfo(newMapping, field);
-			// data.registerUnmappedField(newMapping);
-			// break;
-			// default:
-			// throw new RuntimeException("Multiple candidates for field " + field.getName() + "("
-			// + field.getDeclaringClass().getName() + ")");
-			// }
-			//
-			// }
-
 		}
 	}
 
 	private void bindFieldInfo(OracleMappingField mapping, Field field) {
 		mapping.setJavaAttributeName(field.getName());
-
 	}
 
 }

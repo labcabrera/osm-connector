@@ -24,7 +24,7 @@ public class MetadataStructMapperService implements StructMapperService {
 
 	@Override
 	public <T> StructMapper<T> mapper(Class<T> mappedClass) {
-		return new MetadataStructMapper<>(mappedClass, metadata, definitionService);
+		return new MetadataStructMapper<>(mappedClass, this, metadata, definitionService);
 	}
 
 }

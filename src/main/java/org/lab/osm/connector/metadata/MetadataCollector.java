@@ -144,8 +144,7 @@ public class MetadataCollector {
 				}
 				fieldPredicate = x -> fieldNameMatch.equals(nameNormalizer.apply(x.getOracleColumnName()));
 
-				String oracleName = oracleField.value();
-				log.debug("Mapping field '{}' as '{}'", fieldName, oracleName);
+				// log.debug("Mapping field '{}' as '{}'", fieldName, oracleName);
 
 				List<OracleMappingField> collect = data.getFields().stream().filter(fieldPredicate)
 					.collect(Collectors.toList());

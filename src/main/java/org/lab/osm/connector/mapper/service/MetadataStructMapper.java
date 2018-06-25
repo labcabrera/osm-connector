@@ -3,6 +3,7 @@ package org.lab.osm.connector.mapper.service;
 import java.sql.Connection;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
 
@@ -20,6 +21,9 @@ import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.util.Assert;
 
 import lombok.extern.slf4j.Slf4j;
+import oracle.jdbc.OracleArray;
+import oracle.sql.ARRAY;
+import oracle.sql.ArrayDescriptor;
 import oracle.sql.STRUCT;
 import oracle.sql.StructDescriptor;
 
@@ -27,23 +31,31 @@ import oracle.sql.StructDescriptor;
 public class MetadataStructMapper<T> implements StructMapper<T> {
 
 	private final Class<T> mappedClass;
+	private final StructMapperService mapperService;
 	private final OracleMappingData metadata;
 	private final StructDefinitionService definitionService;
+	// TODO use customizable service
 	private final UnaryOperator<String> nameNormalizer;
 
-	public MetadataStructMapper(Class<T> mappingClass, OracleMappingData metadata,
-		StructDefinitionService definitionService) {
+	public MetadataStructMapper( //@formatter:off
+			Class<T> mappingClass,
+			StructMapperService mapperService,
+			OracleMappingData metadata,
+			StructDefinitionService definitionService) { //@formatter:on
 
 		this.mappedClass = mappingClass;
+		this.mapperService = mapperService;
 		this.metadata = metadata;
 		this.definitionService = definitionService;
-		// TODO use service
 		this.nameNormalizer = x -> x.toUpperCase().replaceAll("_", "");
 	}
 
 	@Override
 	public STRUCT toStruct(T source, Connection conn, String typeName) throws SQLException {
+
 		Assert.notNull(source, "Required source");
+		Assert.isTrue(mappedClass.equals(source.getClass()),
+			"Expected " + mappedClass.getName() + ", found " + source.getClass().getName());
 
 		log.debug("Converting {} to struct (using typeName {})", source, typeName);
 
@@ -54,31 +66,21 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 			.orElseThrow(() -> new OsmMappingException("Missing metadata for source class " + source.getClass().getName()));
 		//@formatter:on
 
+		BeanWrapper sourceBeanWrapper = new BeanWrapperImpl(source);
 		int structSize = structData.getFields().size();
 
 		Object[] values = new Object[structSize];
 		for (int i = 0; i < structSize; i++) {
 			OracleMappingField mappingField = structData.getFields().get(i);
-			Object value = null;
-			if (mappingField.getMapped()) {
-				// TODO check recursive conversion
-				String javaFieldName = mappingField.getJavaAttributeName();
-				BeanWrapper beanWrapper = new BeanWrapperImpl(source);
-				if (beanWrapper.isReadableProperty(javaFieldName)) {
-					log.debug("Mapped {} to field {}", javaFieldName, mappingField.getOracleColumnName());
-					value = beanWrapper.getPropertyValue(javaFieldName);
-				}
-				else {
-					log.warn("No readable property {} in {}", javaFieldName, source.getClass().getName());
-				}
-			}
-			else {
-				log.warn("Unmapped field {} in {}", mappingField.getOracleColumnName(), source.getClass().getName());
-			}
-			values[i] = value;
+			values[i] = resolveMappedValue(mappingField, sourceBeanWrapper, conn);
 		}
-		StructDescriptor descriptor = definitionService.structDescriptor(typeName, conn);
-		return new STRUCT(descriptor, conn, values);
+		try {
+			StructDescriptor descriptor = definitionService.structDescriptor(typeName, conn);
+			return new STRUCT(descriptor, conn, values);
+		}
+		catch (SQLException ex) {
+			throw new OsmMappingException(String.format("Error mapping class %s", mappedClass.getName()), ex);
+		}
 	}
 
 	@Override
@@ -119,6 +121,92 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 			}
 		}
 		return mappedObject;
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Object resolveMappedValue(OracleMappingField mappingField, BeanWrapper sourceBeanWrapper,
+		Connection connection) throws SQLException {
+		Object result = null;
+		if (!mappingField.getMapped()) {
+			log.warn("Unmapped field {} in {}", mappingField.getOracleColumnName(), mappedClass.getName());
+		}
+		else {
+			String javaFieldName = mappingField.getJavaAttributeName();
+			if (sourceBeanWrapper.isReadableProperty(javaFieldName)) {
+				log.debug("Mapped {} to field {}", javaFieldName, mappingField.getOracleColumnName());
+				result = sourceBeanWrapper.getPropertyValue(javaFieldName);
+
+				// check recursive conversion
+				if (result != null) {
+					if (OracleArray.class.getName().equals(mappingField.getOracleColumnClassName())) {
+						log.debug("Detected oracle list mapping");
+						Assert.isTrue(List.class.isAssignableFrom(result.getClass()), "Expected list");
+						result = resolveMappedArrayValue(mappingField, (List) result, connection);
+					}
+					else {
+						Class<?> resultClass = result.getClass();
+					//@formatter:off
+					OracleMappingStructData structCandidate = metadata.getStructs().stream()
+						.filter(x -> resultClass.equals(x.getMappedClass()))
+						.findFirst()
+						.orElseGet(() -> null);
+					//@formatter:on
+						if (structCandidate == null) {
+							return result;
+						}
+						else {
+							log.debug("Mappping internal value to struct as {}", resultClass.getName());
+							StructMapper mapper = mapperService.mapper(resultClass);
+							result = mapper.toStruct(result, connection, structCandidate.getStrucyName());
+						}
+					}
+				}
+			}
+			else {
+				log.warn("No readable property {} in {}", javaFieldName,
+					sourceBeanWrapper.getWrappedInstance().getClass().getName());
+			}
+		}
+		return result;
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Object resolveMappedArrayValue(OracleMappingField mappingField, List list, Connection connection)
+		throws SQLException {
+		Object[] values = new Object[list.size()];
+		Object firstNotNull = list.stream().filter(x -> x != null).findFirst().orElseGet(() -> null);
+		if (firstNotNull != null) {
+			OracleMappingStructData itemMappingField = this.metadata.getStructs().stream()
+				.filter(x -> firstNotNull.getClass().equals(x.getMappedClass())).findFirst()
+				.orElseThrow(() -> new OsmMappingException("Missing metadata"));
+			StructMapper mapper = null;
+			if (itemMappingField != null) {
+				mapper = this.mapperService.mapper(firstNotNull.getClass());
+			}
+
+			for (int i = 0; i < list.size(); i++) {
+				Object sourceListValue = list.get(i);
+				if (sourceListValue != null) {
+					if (mapper != null) {
+						// recursive STRUCT conversion
+						values[i] = mapper.toStruct(sourceListValue, connection, itemMappingField.getStrucyName());
+					}
+					else {
+						// direct reference
+						values[i] = sourceListValue;
+					}
+
+				}
+				else {
+					values[i] = null;
+				}
+			}
+
+		}
+		String collectionName = mappingField.getOracleTypeName();
+		ArrayDescriptor arrayDescriptor = definitionService.arrayDescriptor(collectionName, connection);
+		ARRAY oracleArray = new ARRAY(arrayDescriptor, connection, values);
+		return oracleArray;
 	}
 
 }

@@ -16,5 +16,5 @@ public class OracleMappingField {
 	private String oracleColumnClassName;
 	private String oracleSchemaName;
 
-	private Boolean mapped;
+	private boolean mapped;
 }

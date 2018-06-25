@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lab.osm.connector.exception.OsmMappingException;
 import org.lab.osm.connector.model.OracleMappingData;
 import org.lab.osm.connector.model.OracleMappingField;
@@ -48,7 +49,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 		this.mapperService = mapperService;
 		this.metadata = metadata;
 		this.definitionService = definitionService;
-		this.nameNormalizer = x -> x.toUpperCase().replaceAll("_", "");
+		this.nameNormalizer = x -> x.toUpperCase().replaceAll("_", StringUtils.EMPTY);
 	}
 
 	@Override
@@ -129,7 +130,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 		Connection connection) throws SQLException {
 
 		Object result = null;
-		if (!mappingField.getMapped()) {
+		if (!mappingField.isMapped()) {
 			log.warn("Unmapped field {} in {}", mappingField.getOracleColumnName(), mappedClass.getName());
 		}
 		else {

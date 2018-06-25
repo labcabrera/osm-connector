@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.lab.osm.connector.exception.OsmConnectorException;
+
 import lombok.extern.slf4j.Slf4j;
 import oracle.sql.ArrayDescriptor;
 import oracle.sql.StructDescriptor;
@@ -41,7 +43,7 @@ public class StructDefinitionService {
 			}
 		}
 		catch (Exception ex) {
-			throw new RuntimeException("Error reading struct descriptor " + typeName, ex);
+			throw new OsmConnectorException("Error reading struct descriptor " + typeName, ex);
 		}
 	}
 
@@ -58,7 +60,7 @@ public class StructDefinitionService {
 			}
 		}
 		catch (Exception ex) {
-			throw new RuntimeException("Error reading array descriptor " + typeName, ex);
+			throw new OsmConnectorException("Error reading array descriptor " + typeName, ex);
 		}
 	}
 

@@ -14,7 +14,6 @@ public class OracleMappingStructData {
 	private String strucyName;
 	private int attributeCount;
 	private final List<OracleMappingField> fields;
-	// TODO change bean def
 	private final List<OracleMappingField> unmappedFields;
 
 	public OracleMappingStructData() {

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.lab.osm.connector.exception.OsmConnectorException;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import oracle.sql.ArrayDescriptor;
 import oracle.sql.StructDescriptor;
@@ -30,7 +31,7 @@ public class StructDefinitionService {
 		arrayDescriptorValues = new HashMap<>();
 	}
 
-	public StructDescriptor structDescriptor(String typeName, Connection conn) {
+	public StructDescriptor structDescriptor(@NonNull String typeName, Connection conn) {
 		try {
 			if (structDescriptorValues.containsKey(typeName)) {
 				return structDescriptorValues.get(typeName);
@@ -47,7 +48,7 @@ public class StructDefinitionService {
 		}
 	}
 
-	public ArrayDescriptor arrayDescriptor(String typeName, Connection conn) {
+	public ArrayDescriptor arrayDescriptor(@NonNull String typeName, Connection conn) {
 		try {
 			if (arrayDescriptorValues.containsKey(typeName)) {
 				return arrayDescriptorValues.get(typeName);

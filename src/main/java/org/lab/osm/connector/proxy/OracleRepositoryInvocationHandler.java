@@ -53,23 +53,31 @@ public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, Inv
 		storedProcedure.setFunction(annotation.isFunction());
 
 		Map inputMap = new HashMap();
+		// TODO revisar como llegan los parametros
+		Object[] inputArgs = (Object[]) args[0];
 
 		for (OracleParameter parameter : annotation.parameters()) {
 			String name = parameter.name();
 			int type = parameter.type();
+			Class<?> returnClass = parameter.returnStructClass();
+			StructMapper structMapper;
+
 			switch (parameter.mode()) {
 			case IN:
+
 				SqlParameter sqlParam = new SqlParameter(name, type);
 				storedProcedure.declareParameter(sqlParam);
 
 				// TODO check struct value
-				Object value = args[inputMap.size()];
-				StructMapper structMapper = mapperService.mapper(value.getClass());
+				Object value = inputArgs[inputMap.size()];
+				structMapper = mapperService.mapper(value.getClass());
 				inputMap.put(name, new SqlStructValue(value, structMapper));
 
 				break;
 			case OUT:
-				SqlReturnStruct sqlReturn = new SqlReturnStruct(parameter.returnStructClass());
+				
+				structMapper = mapperService.mapper(returnClass);
+				SqlReturnStruct sqlReturn = new SqlReturnStruct(structMapper);
 				storedProcedure.declareParameter(new SqlOutParameter(name, type, name, sqlReturn));
 				break;
 			}

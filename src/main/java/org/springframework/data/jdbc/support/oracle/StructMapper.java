@@ -38,7 +38,7 @@ public interface StructMapper<T> {
      * @return the new STRUCT
      * @throws SQLException
      */
-    STRUCT toStruct(T source, Connection conn, String typeName) throws SQLException;
+    STRUCT toStruct(T source, Connection conn) throws SQLException;
 
     /**
      * Map attributes from the passed in STRUCT to the desired object type.

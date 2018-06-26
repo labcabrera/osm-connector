@@ -17,6 +17,10 @@ public @interface OracleParameter {
 
 	ParameterType mode();
 
-	Class<?> returnStructClass() default Object.class;
+	Class<?> returnStructClass() default UnmappedClass.class;
+
+	static class UnmappedClass {
+
+	}
 
 }

@@ -3,7 +3,6 @@ package org.lab.osm.connector.proxy;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.lab.osm.connector.annotation.OracleStoredProcedure;
 import org.reflections.Reflections;
 import org.springframework.beans.BeansException;

@@ -10,16 +10,16 @@ import javax.sql.DataSource;
 
 import org.lab.osm.connector.annotation.OracleParameter;
 import org.lab.osm.connector.annotation.OracleStoredProcedure;
+import org.lab.osm.connector.exception.OsmMissingAnnotationException;
+import org.lab.osm.connector.mapper.StructMapper;
 import org.lab.osm.connector.service.StructMapperService;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jdbc.support.oracle.SqlReturnStruct;
 import org.springframework.data.jdbc.support.oracle.SqlStructValue;
-import org.springframework.data.jdbc.support.oracle.StructMapper;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.object.StoredProcedure;
-import org.springframework.util.Assert;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,18 +34,28 @@ public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, Inv
 	private final Class<T> interfaceClass;
 	private final ClassLoader classLoader;
 
+	/**
+	 * Public constructor from service interface class.
+	 * 
+	 * @param interfaceClass
+	 */
 	public OracleRepositoryInvocationHandler(Class<T> interfaceClass) {
 		this.interfaceClass = interfaceClass;
 		this.classLoader = Thread.currentThread().getContextClassLoader();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		log.debug("Invoking proxy using {}", interfaceClass.getName());
 
 		OracleStoredProcedure annotation = interfaceClass.getAnnotation(OracleStoredProcedure.class);
-		Assert.notNull(annotation,
-			"Missing required OracleStoredProcedure annotation on interface " + interfaceClass.getName());
+		if (annotation == null) {
+			throw new OsmMissingAnnotationException(interfaceClass, OracleStoredProcedure.class);
+		}
 
 		String storedProcedureName = annotation.name();
 
@@ -68,14 +78,14 @@ public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, Inv
 				SqlParameter sqlParam = new SqlParameter(name, type);
 				storedProcedure.declareParameter(sqlParam);
 
-				// TODO check struct value
+				// TODO check other non-struct values
 				Object value = inputArgs[inputMap.size()];
 				structMapper = mapperService.mapper(value.getClass());
 				inputMap.put(name, new SqlStructValue(value, structMapper));
 
 				break;
 			case OUT:
-				
+
 				structMapper = mapperService.mapper(returnClass);
 				SqlReturnStruct sqlReturn = new SqlReturnStruct(structMapper);
 				storedProcedure.declareParameter(new SqlOutParameter(name, type, name, sqlReturn));
@@ -83,22 +93,23 @@ public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, Inv
 			}
 		}
 		storedProcedure.compile();
-
-		// Collections.singletonMap("P_O_SIN_ACC_IN_S", new SqlStructValue(request, requestMapper));
-
 		Map<String, Object> result = storedProcedure.execute(inputMap);
-
 		log.trace("Execution result: {}", result);
-
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.springframework.beans.factory.FactoryBean#getObject()
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public T getObject() throws Exception {
 		return (T) Proxy.newProxyInstance(classLoader, new Class<?>[] { interfaceClass }, this);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.springframework.beans.factory.FactoryBean#getObjectType()
+	 */
 	@Override
 	public Class<?> getObjectType() {
 		return interfaceClass;

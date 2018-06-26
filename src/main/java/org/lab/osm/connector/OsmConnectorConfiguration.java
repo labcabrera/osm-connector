@@ -8,10 +8,19 @@ import org.springframework.core.type.AnnotationMetadata;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Spring configuration.
+ * 
+ * @author lab.cabrera@gmail.com
+ * @since 1.0.0
+ */
 @Configuration
 @Slf4j
 public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar {
 
+	/* (non-Javadoc)
+	 * @see org.springframework.context.annotation.ImportBeanDefinitionRegistrar#registerBeanDefinitions(org.springframework.core.type.AnnotationMetadata, org.springframework.beans.factory.support.BeanDefinitionRegistry)
+	 */
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 		AnnotationAttributes attributes = AnnotationAttributes

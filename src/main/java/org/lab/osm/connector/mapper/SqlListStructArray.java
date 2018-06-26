@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.jdbc.support.oracle.SqlReturnArray;
-import org.springframework.data.jdbc.support.oracle.StructMapper;
 
 import lombok.AllArgsConstructor;
 import oracle.sql.ARRAY;

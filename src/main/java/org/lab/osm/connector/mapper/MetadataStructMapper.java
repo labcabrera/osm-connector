@@ -18,7 +18,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.PropertyAccessorFactory;
-import org.springframework.data.jdbc.support.oracle.StructMapper;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.util.Assert;
 
@@ -37,6 +36,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 	private final StructMapperService mapperService;
 	private final OracleMappingData metadata;
 	private final StructDefinitionService definitionService;
+
 	// TODO use customizable service
 	private final UnaryOperator<String> nameNormalizer;
 
@@ -85,41 +85,8 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 		}
 	}
 
-	// @Override
-	// public STRUCT toStruct(T source, Connection conn, String typeName) throws SQLException {
-	//
-	// Assert.notNull(source, "Required source");
-	// Assert.isTrue(mappedClass.equals(source.getClass()),
-	// "Expected " + mappedClass.getName() + ", found " + source.getClass().getName());
-	//
-	// log.debug("Converting {} to struct (using typeName {})", source, typeName);
-	//
-//		//@formatter:off
-//		OracleMappingStructData structData = metadata.getStructs().stream()
-//			.filter(x -> x.getMappedClass().equals(source.getClass()))
-//			.findFirst()
-//			.orElseThrow(() -> new OsmMappingException("Missing metadata for source class " + source.getClass().getName()));
-//		//@formatter:on
-	//
-	// BeanWrapper sourceBeanWrapper = new BeanWrapperImpl(source);
-	// int structSize = structData.getFields().size();
-	//
-	// Object[] values = new Object[structSize];
-	// for (int i = 0; i < structSize; i++) {
-	// OracleMappingField mappingField = structData.getFields().get(i);
-	// values[i] = resolveMappedValue(mappingField, sourceBeanWrapper, conn);
-	// }
-	// try {
-	// StructDescriptor descriptor = definitionService.structDescriptor(typeName, conn);
-	// return new STRUCT(descriptor, conn, values);
-	// }
-	// catch (SQLException ex) {
-	// throw new OsmMappingException(String.format("Error mapping class %s", mappedClass.getName()), ex);
-	// }
-	// }
-
 	@Override
-	public T fromStruct(STRUCT struct) throws SQLException {
+	public T fromStruct(@NonNull STRUCT struct) throws SQLException {
 		log.debug("Converting struct {} to mapped class {}", struct.getSQLTypeName(), mappedClass.getName());
 
 		T mappedObject = BeanUtils.instantiateClass(mappedClass);

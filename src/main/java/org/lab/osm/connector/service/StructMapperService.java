@@ -1,6 +1,6 @@
 package org.lab.osm.connector.service;
 
-import org.springframework.data.jdbc.support.oracle.StructMapper;
+import org.lab.osm.connector.mapper.StructMapper;
 
 public interface StructMapperService {
 

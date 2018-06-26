@@ -7,13 +7,27 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
 
+/**
+ * Annotation configuration for {@link OsmConnectorConfiguration}.
+ *
+ * @author lab.cabrera@gmail.com
+ * @since 1.0.0
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Import(OsmConnectorConfiguration.class)
 public @interface EnableOsmConnector {
 
+	/**
+	 * List of packages used to scan entity model objects.
+	 * @return Model package list.
+	 */
 	String[] modelPackages() default {};
 
-	String[] procedurePackages() default {};
+	/**
+	 * List of packages used to discover proxy interface methods.
+	 * @return Interface package list
+	 */
+	String[] repositoryPackages() default {};
 
 }

@@ -19,6 +19,7 @@ package org.springframework.data.jdbc.support.oracle;
 import oracle.sql.STRUCT;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.lab.osm.connector.mapper.StructMapper;
 import org.springframework.jdbc.core.SqlReturnType;
 
 import java.sql.CallableStatement;

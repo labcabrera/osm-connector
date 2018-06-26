@@ -1,3 +1,5 @@
 = Oracle Struct Metadata Connector
 
+image:https://travis-ci.org/labcabrera/osm-connector.svg?branch=master["Build Status", link="https://travis-ci.org/labcabrera/osm-connector"]
+
 osm-connector

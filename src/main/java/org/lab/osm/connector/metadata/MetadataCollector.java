@@ -16,6 +16,7 @@ import javax.sql.DataSource;
 import org.lab.osm.connector.annotation.OracleCollection;
 import org.lab.osm.connector.annotation.OracleField;
 import org.lab.osm.connector.annotation.OracleStruct;
+import org.lab.osm.connector.exception.OsmMappingException;
 import org.lab.osm.connector.model.OracleMappingData;
 import org.lab.osm.connector.model.OracleMappingField;
 import org.lab.osm.connector.model.OracleMappingStructData;
@@ -100,7 +101,7 @@ public class MetadataCollector {
 				Predicate<OracleMappingField> fieldPredicate = x -> fieldNameMatch
 					.equals(nameNormalizer.apply(x.getOracleColumnName()));
 
-				log.debug("Mapping field '{}' as a collection '{}'", fieldName, collectionName);
+				log.trace("Mapping field '{}' as a collection '{}'", fieldName, collectionName);
 
 				List<OracleMappingField> collect = data.getFields().stream().filter(fieldPredicate)
 					.collect(Collectors.toList());
@@ -118,7 +119,7 @@ public class MetadataCollector {
 					data.registerUnmappedField(newMapping);
 					break;
 				default:
-					throw new RuntimeException("Multiple candidates for field " + field.getName() + "("
+					throw new OsmMappingException("Multiple candidates for field " + field.getName() + "("
 						+ field.getDeclaringClass().getName() + ")");
 				}
 
@@ -145,7 +146,7 @@ public class MetadataCollector {
 				switch (collect.size()) {
 				case 1:
 					target = collect.iterator().next();
-					log.debug("Oracle bind {}", target.getOracleColumnName());
+					log.trace("Oracle bind {}", target.getOracleColumnName());
 					bindFieldInfo(target, field);
 					target.setMapped(true);
 					break;
@@ -155,7 +156,7 @@ public class MetadataCollector {
 					data.registerUnmappedField(newMapping);
 					break;
 				default:
-					throw new RuntimeException("Multiple candidates for field " + field.getName() + "("
+					throw new OsmMappingException("Multiple candidates for field " + field.getName() + "("
 						+ field.getDeclaringClass().getName() + ")");
 				}
 

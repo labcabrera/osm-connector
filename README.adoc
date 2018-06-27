@@ -3,4 +3,106 @@
 image:https://travis-ci.org/labcabrera/osm-connector.svg?branch=master["Build Status", link="https://travis-ci.org/labcabrera/osm-connector"]
 image:https://api.codacy.com/project/badge/Grade/d2e9f91dea274cdcb58c902197b7ac3f["Codacy code quality", link="https://www.codacy.com/app/lab.cabrera/osm-connector?utm_source=github.com&utm_medium=referral&utm_content=labcabrera/osm-connector&utm_campaign=Badge_Grade"]
 
-osm-connector
+== Introduccion
+
+Librería para poder acceder a procedimientos almacenados de Oracle a través del driver _ojdb6_ basada en anotaciones.
+
+La librería ofrece dos funcionalidades principales:
+
+* Mapeo de tipo de datos de Oracle basado en anotaciones.
+* 
+
+== Mapeo de entidades
+
+La librería define la interface `StructMapper` que es la que se encargará de realizar las transformacioens de nuestras
+entidades de Java a objetos de Oracle. La definición es muy sencilla:
+
+[source,java]
+----
+public interface StructMapper<T> {
+
+	STRUCT toStruct(T source, Connection conn) throws SQLException;
+
+	T fromStruct(STRUCT struct) throws SQLException;
+}
+----
+
+Esta interface está implementada por la clase `MetadataStructMapper` que utiliza un metamodelo basado en anotaciones para
+hacer las conversiones de tipos.
+
+=== Definición del modelo
+
+En primer lugar tendremos que definir las entidades de nuestro modelo a través de anotaciones que nos permitirán hacer
+las conversiones de tipos.
+
+Las anotaciones que utilizaremos serán:
+
+|===
+|`@OracleStruct`    | Utilizada para establecer el nombre de la entidad de Oracle en nuestra clase java.
+|`@OracleField`     | Utilizada para establecer el nombre de un campo de una entidad de Oracle de un modo similar al `@Column` de JPA.
+|`OracleCollection` | Utilizada para mapear una lista de objetos en nuestra entidad de java representando una colección de Oracle. 
+|===
+
+De este modo por ejemplo tendremos:
+
+[source,java]
+----
+@OracleStruct("ORACLE_MODEL_CUSTOMER")
+public class Customer {
+
+  @OracleField("ORACLE_MODEL_ID")
+  private Long id;
+  
+  @OracleField("ORACLE_MODEL_NAME")
+  private String name;
+    
+  @OracleCollection("ORACLE_MODEL_PRODUCT_LIST")
+  private List<Products> products;
+
+  private Address address;
+
+}
+----
+
+== Invocación de procedimientos
+
+Tenemos dos opciones:
+
+* Utilizar el sistema basado en interfaces similar al funcionamiento de `JpaRepository` de Spring Framework.
+* Extender el objeto `org.springframework.jdbc.object.StoredProcedure` utilizando la funcionalidad de `StructMapper` para la conversión de tipos.
+
+=== Utilizando interfaces
+
+TODO
+
+Por ejemplo para invocar a una función de Oracle que recibe como parámetro de entrada un objeto de tipo _ORACLE_CUSTOMER_MODEL_ y devuelve una lista de
+objetos del mismo tipo simplemente tendremos que declarar la interface:
+
+[source,java]
+----
+@OracleStoredProcedure(name = "MY_ORACLE_PACKAGE.CUSTOMER_SEARCH",
+  isFunction = true,
+  parameters = {
+    @OracleParameter(
+      name = "ORACLE_MODEL_CUSTOMER_COLLECTION",
+      type = Types.ARRAY,
+      mode = ParameterType.OUT,
+      returnStructClass = Customer.class),
+    @OracleParameter(
+      name = "ORACLE_CUSTOMER_MODEL", 
+      type = Types.STRUCT,
+      mode = ParameterType.IN)
+    })
+public interface CustomerReaderExecutor extends StoredProcedureExecutor {
+}
+----
+
+=== Utilizando directamente procedimientos almacenados
+
+TODO
+
+== Requisitos
+
+* JDK 8+
+
+TODO: establecer dependencia del driver de oracle (definida como _provided_ en el pom del proyecto).

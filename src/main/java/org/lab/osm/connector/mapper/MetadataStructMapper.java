@@ -10,9 +10,9 @@ import java.util.function.UnaryOperator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.lab.osm.connector.exception.OsmMappingException;
-import org.lab.osm.connector.model.OracleMappingData;
-import org.lab.osm.connector.model.OracleMappingField;
-import org.lab.osm.connector.model.OracleMappingStructData;
+import org.lab.osm.connector.metadata.model.FieldMetadata;
+import org.lab.osm.connector.metadata.model.MappingMetadata;
+import org.lab.osm.connector.metadata.model.StructMetadata;
 import org.lab.osm.connector.service.StructMapperService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
@@ -34,7 +34,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 
 	private final Class<T> mappedClass;
 	private final StructMapperService mapperService;
-	private final OracleMappingData metadata;
+	private final MappingMetadata metadata;
 	private final StructDefinitionService definitionService;
 
 	// TODO use customizable service
@@ -43,7 +43,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 	public MetadataStructMapper( //@formatter:off
 			Class<T> mappingClass,
 			StructMapperService mapperService,
-			OracleMappingData metadata,
+			MappingMetadata metadata,
 			StructDefinitionService definitionService) { //@formatter:on
 
 		this.mappedClass = mappingClass;
@@ -62,7 +62,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 		log.trace("Converting {} to struct", source);
 
 		//@formatter:off
-		OracleMappingStructData structData = metadata.getStructs().stream()
+		StructMetadata structData = metadata.getStructs().stream()
 			.filter(x -> x.getMappedClass().equals(source.getClass()))
 			.findFirst()
 			.orElseThrow(() -> new OsmMappingException("Missing metadata for source class " + source.getClass().getName()));
@@ -73,7 +73,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 
 		Object[] values = new Object[structSize];
 		for (int i = 0; i < structSize; i++) {
-			OracleMappingField mappingField = structData.getFields().get(i);
+			FieldMetadata mappingField = structData.getFields().get(i);
 			values[i] = resolveMappedValue(mappingField, sourceBeanWrapper, conn);
 		}
 		try {
@@ -97,7 +97,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 		Object[] attributes = struct.getAttributes();
 
 		//@formatter:off
-		OracleMappingStructData mappingStructData = metadata.getStructs().stream()
+		StructMetadata mappingStructData = metadata.getStructs().stream()
 			.filter(x -> x.getMappedClass().equals(mappedClass))
 			.findFirst()
 			.orElseThrow(() -> new OsmMappingException("Missing struct mapping data for class " + mappedClass.getName()));
@@ -108,14 +108,14 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 			String columnNameNormalized = nameNormalizer.apply(columnName);
 
 			//@formatter:off
-			Optional<OracleMappingField> optionalMappingField = mappingStructData.getFields().stream()
+			Optional<FieldMetadata> optionalMappingField = mappingStructData.getFields().stream()
 				.filter(x -> columnNameNormalized.equals(nameNormalizer.apply(x.getOracleColumnName())))
 				.findFirst();
 			//@formatter:on
 
 			if (optionalMappingField.isPresent()) {
 				Object value = attributes[index];
-				OracleMappingField mappedField = optionalMappingField.get();
+				FieldMetadata mappedField = optionalMappingField.get();
 				beanWrapper.setPropertyValue(mappedField.getJavaAttributeName(), value);
 			}
 			else {
@@ -126,7 +126,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Object resolveMappedValue(OracleMappingField mappingField, BeanWrapper sourceBeanWrapper,
+	private Object resolveMappedValue(FieldMetadata mappingField, BeanWrapper sourceBeanWrapper,
 		Connection connection) throws SQLException {
 
 		Object result = null;
@@ -151,7 +151,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 					}
 					else {
 						Class<?> resultClass = result.getClass();
-						OracleMappingStructData structCandidate = metadata.getStructs().stream()
+						StructMetadata structCandidate = metadata.getStructs().stream()
 							.filter(x -> resultClass.equals(x.getMappedClass())).findFirst().orElseGet(() -> null);
 						if (structCandidate == null) {
 							return result;
@@ -173,12 +173,12 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Object resolveMappedArrayValue(OracleMappingField mappingField, List list, Connection connection)
+	private Object resolveMappedArrayValue(FieldMetadata mappingField, List list, Connection connection)
 		throws SQLException {
 		Object[] values = new Object[list.size()];
 		Object firstNotNull = list.stream().filter(x -> x != null).findFirst().orElseGet(() -> null);
 		if (firstNotNull != null) {
-			OracleMappingStructData itemMappingField = this.metadata.getStructs().stream()
+			StructMetadata itemMappingField = this.metadata.getStructs().stream()
 				.filter(x -> firstNotNull.getClass().equals(x.getMappedClass())).findFirst()
 				.orElseThrow(() -> new OsmMappingException("Missing metadata"));
 			StructMapper mapper = null;

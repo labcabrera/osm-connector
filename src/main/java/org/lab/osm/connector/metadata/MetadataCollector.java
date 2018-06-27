@@ -5,21 +5,18 @@ import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
 import org.lab.osm.connector.annotation.OracleCollection;
 import org.lab.osm.connector.annotation.OracleField;
 import org.lab.osm.connector.annotation.OracleStruct;
-import org.lab.osm.connector.exception.OsmMappingException;
-import org.lab.osm.connector.model.OracleMappingData;
-import org.lab.osm.connector.model.OracleMappingField;
-import org.lab.osm.connector.model.OracleMappingStructData;
+import org.lab.osm.connector.metadata.model.FieldMetadata;
+import org.lab.osm.connector.metadata.model.MappingMetadata;
+import org.lab.osm.connector.metadata.model.StructMetadata;
 import org.reflections.Reflections;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,47 +26,45 @@ import oracle.sql.StructDescriptor;
 public class MetadataCollector {
 
 	private final DataSource dataSource;
+	private final UnaryOperator<String> nameNormalizer = x -> x.toUpperCase().replaceAll("_", "");
 
 	public MetadataCollector(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
 
-	public OracleMappingData readMetadata(String packageName) throws SQLException {
+	public void readMetadata(MappingMetadata metadata, String packageName) throws SQLException {
 		try (Connection connection = dataSource.getConnection()) {
-			return readMetadata(packageName, connection);
+			readMetadata(metadata, packageName, connection);
 		}
 	}
 
-	public OracleMappingData readMetadata(String packageName, Connection connection) throws SQLException {
+	public void readMetadata(MappingMetadata metadata, String packageName, Connection connection) throws SQLException {
 		Set<Class<?>> structs = new Reflections(packageName).getTypesAnnotatedWith(OracleStruct.class);
-		OracleMappingData result = new OracleMappingData();
-		result.setPackageName(packageName);
+		metadata.registerPackageName(packageName);
 		for (Class<?> structClass : structs) {
 			log.info("Loading class {}", structClass.getName());
-			result.register(loadStructData(structClass, connection));
+			metadata.register(loadStructData(structClass, connection));
 		}
-		return result;
-
 	}
 
-	private OracleMappingStructData loadStructData(Class<?> structClass, Connection connection) throws SQLException {
-		OracleMappingStructData result = new OracleMappingStructData();
+	private StructMetadata loadStructData(Class<?> structClass, Connection connection) throws SQLException {
+		StructMetadata result = new StructMetadata();
 		OracleStruct annotation = structClass.getAnnotation(OracleStruct.class);
 		String structName = annotation.value();
 		mapOracleMetaData(result, structName, connection);
-		mapFields(result, structClass);
+		mapReflectionFields(result, structClass);
 		result.setMappedClass(structClass);
 		result.setStrucyName(annotation.value());
 		return result;
 	}
 
-	private void mapOracleMetaData(OracleMappingStructData result, String structName, Connection connection)
+	private void mapOracleMetaData(StructMetadata result, String structName, Connection connection)
 		throws SQLException {
 		StructDescriptor desc = new StructDescriptor(structName, connection);
 		ResultSetMetaData metaData = desc.getMetaData();
 		int count = metaData.getColumnCount();
 		for (int i = 0; i < count; i++) {
-			OracleMappingField field = new OracleMappingField();
+			FieldMetadata field = new FieldMetadata();
 			field.setMapped(false);
 			field.setOracleColumnName(metaData.getColumnName(i + 1));
 			field.setOracleTypeName(metaData.getColumnTypeName(i + 1));
@@ -79,10 +74,11 @@ public class MetadataCollector {
 		}
 	}
 
-	private void mapFields(OracleMappingStructData data, Class<?> structClass) {
-		UnaryOperator<String> nameNormalizer = x -> x.toUpperCase().replaceAll("_", "");
+	private void mapReflectionFields(StructMetadata data, Class<?> structClass) {
 
 		for (Field field : structClass.getDeclaredFields()) {
+
+			// Skip static fields
 			if (Modifier.isStatic(field.getModifiers())) {
 				log.trace("Ignoring static field {}", field.getName());
 				continue;
@@ -92,82 +88,65 @@ public class MetadataCollector {
 			OracleField oracleField = field.getAnnotation(OracleField.class);
 			OracleCollection oracleCollection = field.getAnnotation(OracleCollection.class);
 
-			OracleMappingField target = null;
-
 			if (oracleCollection != null) {
-				String collectionName = oracleCollection.value();
-
-				String fieldNameMatch = nameNormalizer.apply(fieldName);
-				Predicate<OracleMappingField> fieldPredicate = x -> fieldNameMatch
-					.equals(nameNormalizer.apply(x.getOracleColumnName()));
-
-				log.trace("Mapping field '{}' as a collection '{}'", fieldName, collectionName);
-
-				List<OracleMappingField> collect = data.getFields().stream().filter(fieldPredicate)
-					.collect(Collectors.toList());
-
-				switch (collect.size()) {
-				case 1:
-					target = collect.iterator().next();
-					log.debug("Oracle bind {}", target.getOracleColumnName());
-					bindFieldInfo(target, field);
-					target.setMapped(true);
-					break;
-				case 0:
-					OracleMappingField newMapping = new OracleMappingField();
-					bindFieldInfo(newMapping, field);
-					data.registerUnmappedField(newMapping);
-					break;
-				default:
-					throw new OsmMappingException("Multiple candidates for field " + field.getName() + "("
-						+ field.getDeclaringClass().getName() + ")");
-				}
-
-				bindFieldInfo(target, field);
-				target.setMapped(true);
-
-				// TODO map collection info
+				// Oracle collection binding
+				bindOracleCollection(oracleCollection.value(), field, data);
 			}
 			else {
+				// Common field binding
 
 				String fieldNameMatch;
-				Predicate<OracleMappingField> fieldPredicate;
+				Predicate<FieldMetadata> fieldPredicate;
+
 				if (oracleField != null) {
 					fieldNameMatch = nameNormalizer.apply(oracleField.value());
 				}
 				else {
 					fieldNameMatch = nameNormalizer.apply(fieldName);
 				}
+
 				fieldPredicate = x -> fieldNameMatch.equals(nameNormalizer.apply(x.getOracleColumnName()));
 
-				List<OracleMappingField> collect = data.getFields().stream().filter(fieldPredicate)
-					.collect(Collectors.toList());
+				FieldMetadata target = data.getFields().stream().filter(fieldPredicate).findFirst()
+					.orElseGet(() -> null);
 
-				switch (collect.size()) {
-				case 1:
-					target = collect.iterator().next();
+				if (target != null) {
 					log.trace("Oracle bind {}", target.getOracleColumnName());
-					bindFieldInfo(target, field);
 					target.setMapped(true);
-					break;
-				case 0:
-					OracleMappingField newMapping = new OracleMappingField();
-					bindFieldInfo(newMapping, field);
-					data.registerUnmappedField(newMapping);
-					break;
-				default:
-					throw new OsmMappingException("Multiple candidates for field " + field.getName() + "("
-						+ field.getDeclaringClass().getName() + ")");
 				}
-
+				else {
+					target = new FieldMetadata();
+					target.setMapped(false);
+					data.registerUnmappedField(target);
+				}
 				bindFieldInfo(target, field);
-				target.setMapped(true);
-
 			}
 		}
 	}
 
-	private void bindFieldInfo(OracleMappingField mapping, Field field) {
+	private void bindOracleCollection(String collectionName, Field field, StructMetadata data) {
+		String fieldName = field.getName();
+		String fieldNameNormalized = nameNormalizer.apply(fieldName);
+		log.trace("Mapping field '{}' as a collection '{}'", fieldName, collectionName);
+
+		FieldMetadata fieldMetadata = data.getFields().stream()
+			.filter(x -> fieldNameNormalized.equals(nameNormalizer.apply(x.getOracleColumnName()))).findFirst()
+			.orElseGet(() -> null);
+
+		if (fieldMetadata != null) {
+			log.trace("Binded collection {} to field {}", fieldMetadata.getOracleColumnName(), fieldName);
+			fieldMetadata.setMapped(true);
+		}
+		else {
+			log.trace("Field {} is not present in parent oracle mapping", fieldName);
+			fieldMetadata = new FieldMetadata();
+			fieldMetadata.setMapped(false);
+			data.registerUnmappedField(fieldMetadata);
+		}
+		bindFieldInfo(fieldMetadata, field);
+	}
+
+	private void bindFieldInfo(FieldMetadata mapping, Field field) {
 		mapping.setJavaAttributeName(field.getName());
 	}
 

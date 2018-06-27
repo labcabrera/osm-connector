@@ -8,21 +8,45 @@ import org.lab.osm.connector.mapper.MetadataStructMapper;
 import org.lab.osm.connector.mapper.StructDefinitionService;
 import org.lab.osm.connector.mapper.StructMapper;
 import org.lab.osm.connector.metadata.MetadataCollector;
-import org.lab.osm.connector.model.OracleMappingData;
+import org.lab.osm.connector.metadata.model.MappingMetadata;
 
+import lombok.Getter;
+
+/**
+ * <code>StructMapperService</code> using Oracle metadata.
+ * 
+ * 
+ * @author lab.cabrera@gmail.com
+ * @since 1.0.0
+ */
 public class MetadataStructMapperService implements StructMapperService {
 
-	private final OracleMappingData metadata;
+	@Getter
+	private final MappingMetadata metadata;
+
 	private final StructDefinitionService definitionService;
 
-	// TODO allow multiple packages
-	public MetadataStructMapperService(DataSource dataSource, StructDefinitionService definitionService,
-		String packageName) throws SQLException {
-		MetadataCollector collector = new MetadataCollector(dataSource);
-		this.metadata = collector.readMetadata(packageName);
+	/**
+	 * Public constructor.
+	 * @param dataSource
+	 * @param definitionService
+	 * @param packageName
+	 * @throws SQLException
+	 */
+	public MetadataStructMapperService( //@formatter:off
+		DataSource dataSource,
+		StructDefinitionService definitionService,
+		String packageName) throws SQLException { //@formatter:on
+
+		this.metadata = new MappingMetadata();
 		this.definitionService = definitionService;
+		MetadataCollector collector = new MetadataCollector(dataSource);
+		collector.readMetadata(metadata, packageName);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.lab.osm.connector.service.StructMapperService#mapper(java.lang.Class)
+	 */
 	@Override
 	public <T> StructMapper<T> mapper(Class<T> mappedClass) {
 		return new MetadataStructMapper<>(mappedClass, this, metadata, definitionService);

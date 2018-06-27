@@ -51,12 +51,6 @@
       <version>${reflections.version}</version>
     </dependency>
 
-    <!-- dependency>
-      <groupId>com.oracle.jdbc</groupId>
-      <artifactId>oracle.jdbc</artifactId>
-      <version>${oracle.jdbc.driver.version}</version>
-      <scope>provided</scope>
-    </dependency -->
     <dependency>
       <groupId>com.oracle</groupId>
       <artifactId>ojdbc6</artifactId>
@@ -98,7 +92,6 @@
   <repositories>
     <repository>
       <id>spring-ext</id>
-      <!-- url>http://repo.spring.io/ext-private-local/</url -->
       <url>http://repo.spring.io/plugins-release/</url>
     </repository>
   </repositories>

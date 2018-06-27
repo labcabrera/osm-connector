@@ -5,12 +5,14 @@ image:https://api.codacy.com/project/badge/Grade/d2e9f91dea274cdcb58c902197b7ac3
 
 == Introduccion
 
-Librería para poder acceder a procedimientos almacenados de Oracle a través del driver _ojdb6_ basada en anotaciones.
+Librería para poder acceder a procedimientos almacenados de Oracle a través de
+https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html[spring-jdbc]
+a partir de anotaciones.
 
 La librería ofrece dos funcionalidades principales:
 
 * Mapeo de tipo de datos de Oracle basado en anotaciones.
-* 
+* Invocación de lógicas de negocio de Oracle a través de interfaces (similar al sistema de repositorios utilizado por Spring Data).
 
 == Mapeo de entidades
 

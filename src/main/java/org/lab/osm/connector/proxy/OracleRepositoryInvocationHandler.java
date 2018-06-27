@@ -27,6 +27,15 @@ import org.springframework.jdbc.object.StoredProcedure;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * <code>InvocationHandler</code> to invoke <code>StoredProcedure</code> based on {@link OracleStoredProcedure}
+ * annotation.
+ * 
+ * @author lab.cabrera@gmail.com
+ * @since 1.0.0
+ * 
+ * @param <T> Interface class.
+ */
 @Slf4j
 public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, InvocationHandler {
 
@@ -80,8 +89,10 @@ public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, Inv
 			case OUT:
 				registerOutputParameter(storedProcedure, parameter);
 				break;
+			default:
+				// TODO in-out parameter
+				throw new NotImplementedException("Unsupported parameter mode " + parameter.mode());
 			}
-			// TODO in-out parameter
 		}
 		storedProcedure.compile();
 		Map<String, Object> result = storedProcedure.execute(inputMap);
@@ -106,6 +117,7 @@ public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, Inv
 		return interfaceClass;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void registerInputParameter(StoredProcedure storedProcedure, OracleParameter parameter,
 		Map<String, Object> inputMap, Object value) {
 		String name = parameter.name();
@@ -125,6 +137,7 @@ public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, Inv
 		}
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void registerOutputParameter(StoredProcedure storedProcedure, OracleParameter parameter) {
 		String name = parameter.name();
 		int type = parameter.type();

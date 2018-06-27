@@ -9,9 +9,9 @@ buildscript {
     useProxy = false
   }
   repositories {
+    mavenLocal()
     if(useProxy) {
-      mavenLocal()
-      //maven { url "http://nexus:8080/nexus/content/groups/public/" }
+      maven { url "$System.env.MVN_PROXY" }
     } else {
       mavenCentral()
       maven { url "http://repo.spring.io/plugins-release/" }
@@ -23,13 +23,13 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 group = 'org.lab.osm'
-version = '0.0.1-SNAPSHOT'
+version = version
 sourceCompatibility = 1.8
 
 repositories {
   if(useProxy) {
     mavenLocal()
-    maven { url "http://nexus:8080/nexus/content/groups/public/" }
+    maven { url "$System.env.MVN_PROXY" }
   } else {
     mavenCentral()
     maven { url "http://repo.spring.io/plugins-release/" }

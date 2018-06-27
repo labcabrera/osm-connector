@@ -1,4 +1,4 @@
-package org.lab.osm.connector.proxy;
+package org.lab.osm.connector.handler;
 
 import javax.sql.DataSource;
 

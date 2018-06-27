@@ -1,10 +1,10 @@
-package org.lab.osm.connector.proxy;
+package org.lab.osm.connector.handler;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Types;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
  * @param <T> Interface class.
  */
 @Slf4j
-public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, InvocationHandler {
+public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, InvocationHandler {
 
 	@Autowired
 	private DataSource dataSource;
@@ -52,7 +52,7 @@ public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, Inv
 	 * 
 	 * @param interfaceClass
 	 */
-	public OracleRepositoryInvocationHandler(Class<T> interfaceClass) {
+	public StoredProcedureInvocationHandler(Class<T> interfaceClass) {
 		this.interfaceClass = interfaceClass;
 		this.classLoader = Thread.currentThread().getContextClassLoader();
 	}
@@ -76,8 +76,7 @@ public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, Inv
 		StoredProcedure storedProcedure = new DelegateStoredProcedure(dataSource, storedProcedureName);
 		storedProcedure.setFunction(annotation.isFunction());
 
-		Map inputMap = new HashMap();
-		// TODO revisar como llegan los parametros
+		Map inputMap = new LinkedHashMap();
 		Object[] inputArgs = (Object[]) args[0];
 
 		for (OracleParameter parameter : annotation.parameters()) {
@@ -130,6 +129,9 @@ public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, Inv
 		case Types.STRUCT:
 			StructMapper<?> structMapper = mapperService.mapper(value.getClass());
 			inputMap.put(name, new SqlStructValue(value, structMapper));
+			break;
+		case Types.VARCHAR:
+			inputMap.put(name, value);
 			break;
 		default:
 			// TODO

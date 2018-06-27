@@ -87,7 +87,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 
 	@Override
 	public T fromStruct(@NonNull STRUCT struct) throws SQLException {
-		log.debug("Converting struct {} to mapped class {}", struct.getSQLTypeName(), mappedClass.getName());
+		log.trace("Converting struct {} to mapped class {}", struct.getSQLTypeName(), mappedClass.getName());
 
 		T mappedObject = BeanUtils.instantiateClass(mappedClass);
 		BeanWrapper beanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(mappedObject);
@@ -126,8 +126,8 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Object resolveMappedValue(FieldMetadata mappingField, BeanWrapper sourceBeanWrapper,
-		Connection connection) throws SQLException {
+	private Object resolveMappedValue(FieldMetadata mappingField, BeanWrapper sourceBeanWrapper, Connection connection)
+		throws SQLException {
 
 		Object result = null;
 		if (!mappingField.isMapped()) {

@@ -6,7 +6,7 @@ buildscript {
     reflectionsVersion = '0.9.11'
     slf4jVersion = '1.7.25'
     lombokVersion = '1.16.22'
-    useProxy = false
+    useProxy = "$System.env.MVN_PROXY" != null
   }
   repositories {
     mavenLocal()
@@ -21,6 +21,7 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'maven'
 
 group = 'org.lab.osm'
 version = version

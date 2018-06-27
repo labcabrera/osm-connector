@@ -6,7 +6,7 @@ buildscript {
     reflectionsVersion = '0.9.11'
     slf4jVersion = '1.7.25'
     lombokVersion = '1.16.22'
-    useProxy = false
+    useProxy = true
   }
   repositories {
     mavenLocal()
@@ -46,5 +46,5 @@ dependencies {
   compileOnly("org.projectlombok:lombok:${lombokVersion}")
   compileOnly("org.slf4j:slf4j-api:${slf4jVersion}")
 
-  testCompile('org.springframework:spring-test')
+  testCompile("org.springframework:spring-test:${springVersion}")
 }

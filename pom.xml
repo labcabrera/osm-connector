@@ -25,6 +25,13 @@
     <reflections.version>0.9.11</reflections.version>
   </properties>
 
+  <scm>
+    <url>https://github.com/labcabrera/osm-connector</url>
+    <connection>scm:git:git://github.com/labcabrera/osm-connector.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/labcabrera/osm-connector</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+
   <dependencies>
 
     <dependency>

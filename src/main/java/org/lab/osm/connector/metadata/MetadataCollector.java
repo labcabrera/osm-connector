@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 import javax.sql.DataSource;
@@ -94,22 +93,16 @@ public class MetadataCollector {
 			}
 			else {
 				// Common field binding
-
 				String fieldNameMatch;
-				Predicate<FieldMetadata> fieldPredicate;
-
 				if (oracleField != null) {
 					fieldNameMatch = nameNormalizer.apply(oracleField.value());
 				}
 				else {
 					fieldNameMatch = nameNormalizer.apply(fieldName);
 				}
-
-				fieldPredicate = x -> fieldNameMatch.equals(nameNormalizer.apply(x.getOracleColumnName()));
-
-				FieldMetadata target = data.getFields().stream().filter(fieldPredicate).findFirst()
+				FieldMetadata target = data.getFields().stream()
+					.filter(x -> fieldNameMatch.equals(nameNormalizer.apply(x.getOracleColumnName()))).findFirst()
 					.orElseGet(() -> null);
-
 				if (target != null) {
 					log.trace("Oracle bind {}", target.getOracleColumnName());
 					target.setMapped(true);

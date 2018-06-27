@@ -107,11 +107,8 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 			String columnName = JdbcUtils.lookupColumnName(rsmd, index + 1).toLowerCase();
 			String columnNameNormalized = nameNormalizer.apply(columnName);
 
-			//@formatter:off
 			Optional<FieldMetadata> optionalMappingField = mappingStructData.getFields().stream()
-				.filter(x -> columnNameNormalized.equals(nameNormalizer.apply(x.getOracleColumnName())))
-				.findFirst();
-			//@formatter:on
+				.filter(x -> columnNameNormalized.equals(nameNormalizer.apply(x.getOracleColumnName()))).findFirst();
 
 			if (optionalMappingField.isPresent()) {
 				Object value = attributes[index];
@@ -190,20 +187,18 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 				Object sourceListValue = list.get(i);
 				if (sourceListValue != null) {
 					if (mapper != null) {
-						// recursive STRUCT conversion
+						// Recursive STRUCT conversion
 						values[i] = mapper.toStruct(sourceListValue, connection);
 					}
 					else {
-						// direct reference
+						// Direct reference value
 						values[i] = sourceListValue;
 					}
-
 				}
 				else {
 					values[i] = null;
 				}
 			}
-
 		}
 		String collectionName = mappingField.getOracleTypeName();
 		ArrayDescriptor arrayDescriptor = definitionService.arrayDescriptor(collectionName, connection);

@@ -3,22 +3,26 @@ package org.lab.osm.connector.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.lab.osm.connector.annotation.OracleParameter;
 import org.lab.osm.connector.annotation.OracleStoredProcedure;
 import org.lab.osm.connector.exception.OsmMissingAnnotationException;
 import org.lab.osm.connector.mapper.SqlStructValue;
 import org.lab.osm.connector.mapper.StructMapper;
+import org.lab.osm.connector.mapper.results.SqlListStructArray;
 import org.lab.osm.connector.mapper.results.SqlReturnStruct;
 import org.lab.osm.connector.service.StructMapperService;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
+import org.springframework.jdbc.core.SqlReturnType;
 import org.springframework.jdbc.object.StoredProcedure;
 
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +54,7 @@ public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, Inv
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		log.debug("Invoking proxy using {}", interfaceClass.getName());
+		log.debug("Invoking stored procedure handler using interface {}", interfaceClass.getName());
 
 		OracleStoredProcedure annotation = interfaceClass.getAnnotation(OracleStoredProcedure.class);
 		if (annotation == null) {
@@ -58,6 +62,7 @@ public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, Inv
 		}
 
 		String storedProcedureName = annotation.name();
+		log.trace("Using stored procedure {}", storedProcedureName);
 
 		StoredProcedure storedProcedure = new DelegateStoredProcedure(dataSource, storedProcedureName);
 		storedProcedure.setFunction(annotation.isFunction());
@@ -67,30 +72,16 @@ public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, Inv
 		Object[] inputArgs = (Object[]) args[0];
 
 		for (OracleParameter parameter : annotation.parameters()) {
-			String name = parameter.name();
-			int type = parameter.type();
-			Class<?> returnClass = parameter.returnStructClass();
-			StructMapper structMapper;
-
 			switch (parameter.mode()) {
 			case IN:
-
-				SqlParameter sqlParam = new SqlParameter(name, type);
-				storedProcedure.declareParameter(sqlParam);
-
-				// TODO check other non-struct values
 				Object value = inputArgs[inputMap.size()];
-				structMapper = mapperService.mapper(value.getClass());
-				inputMap.put(name, new SqlStructValue(value, structMapper));
-
+				registerInputParameter(storedProcedure, parameter, inputMap, value);
 				break;
 			case OUT:
-
-				structMapper = mapperService.mapper(returnClass);
-				SqlReturnStruct sqlReturn = new SqlReturnStruct(structMapper);
-				storedProcedure.declareParameter(new SqlOutParameter(name, type, name, sqlReturn));
+				registerOutputParameter(storedProcedure, parameter);
 				break;
 			}
+			// TODO in-out parameter
 		}
 		storedProcedure.compile();
 		Map<String, Object> result = storedProcedure.execute(inputMap);
@@ -115,4 +106,53 @@ public class OracleRepositoryInvocationHandler<T> implements FactoryBean<T>, Inv
 		return interfaceClass;
 	}
 
+	private void registerInputParameter(StoredProcedure storedProcedure, OracleParameter parameter,
+		Map<String, Object> inputMap, Object value) {
+		String name = parameter.name();
+		int type = parameter.type();
+
+		SqlParameter sqlParam = new SqlParameter(name, type);
+		storedProcedure.declareParameter(sqlParam);
+
+		switch (type) {
+		case Types.STRUCT:
+			StructMapper<?> structMapper = mapperService.mapper(value.getClass());
+			inputMap.put(name, new SqlStructValue(value, structMapper));
+			break;
+		default:
+			// TODO
+			throw new NotImplementedException("Usupported type " + type);
+		}
+	}
+
+	private void registerOutputParameter(StoredProcedure storedProcedure, OracleParameter parameter) {
+		String name = parameter.name();
+		int type = parameter.type();
+		Class<?> returnClass = parameter.returnStructClass();
+		StructMapper<?> structMapper;
+		SqlReturnType sqlReturn;
+
+		switch (parameter.type()) {
+		case Types.STRUCT:
+			structMapper = mapperService.mapper(returnClass);
+			sqlReturn = new SqlReturnStruct(structMapper);
+			storedProcedure.declareParameter(new SqlOutParameter(name, type, name, sqlReturn));
+			break;
+		case Types.ARRAY:
+			if (returnClass != null) {
+				structMapper = mapperService.mapper(returnClass);
+				sqlReturn = new SqlListStructArray(structMapper);
+				storedProcedure.declareParameter(new SqlOutParameter(name, Types.ARRAY, name, sqlReturn));
+			}
+			else {
+				// TODO
+				throw new NotImplementedException("Not implemented primitive array return type");
+			}
+			break;
+		default:
+			// TODO
+			throw new NotImplementedException("Unsupported output type " + parameter.type());
+		}
+
+	}
 }

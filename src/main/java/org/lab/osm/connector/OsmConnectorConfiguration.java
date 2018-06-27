@@ -26,7 +26,7 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		AnnotationAttributes attributes = AnnotationAttributes
 			.fromMap(importingClassMetadata.getAnnotationAttributes(EnableOsmConnector.class.getName(), false));
 		String[] modelPackages = attributes.getStringArray("modelPackages");
-		String[] procedurePackages = attributes.getStringArray("procedurePackages");
+		String[] procedurePackages = attributes.getStringArray("repositoryPackages");
 
 		log.info("Starting metadata. Model packages {}, procedure packages: {}", modelPackages, procedurePackages);
 

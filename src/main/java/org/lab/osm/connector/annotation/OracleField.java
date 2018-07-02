@@ -16,4 +16,12 @@ public @interface OracleField {
 	 */
 	String value() default "";
 
+	String typeName() default "";
+
+	int length() default -1;
+
+	int precision() default -1;
+
+	int scale() default -1;
+
 }

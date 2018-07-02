@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 import org.lab.osm.connector.annotation.OracleCollection;
 import org.lab.osm.connector.annotation.OracleField;
 import org.lab.osm.connector.annotation.OracleStruct;
+import org.lab.osm.connector.exception.OsmMappingException;
 import org.lab.osm.connector.metadata.model.FieldMetadata;
 import org.lab.osm.connector.metadata.model.MappingMetadata;
 import org.lab.osm.connector.metadata.model.StructMetadata;
@@ -57,19 +58,23 @@ public class MetadataCollector {
 		return result;
 	}
 
-	private void mapOracleMetaData(StructMetadata result, String structName, Connection connection)
-		throws SQLException {
-		StructDescriptor desc = new StructDescriptor(structName, connection);
-		ResultSetMetaData metaData = desc.getMetaData();
-		int count = metaData.getColumnCount();
-		for (int i = 0; i < count; i++) {
-			FieldMetadata field = new FieldMetadata();
-			field.setMapped(false);
-			field.setOracleColumnName(metaData.getColumnName(i + 1));
-			field.setOracleTypeName(metaData.getColumnTypeName(i + 1));
-			field.setOracleColumnClassName(metaData.getColumnClassName(i + 1));
-			field.setOracleSchemaName(metaData.getSchemaName(i + 1));
-			result.registerField(field);
+	private void mapOracleMetaData(StructMetadata result, String structName, Connection connection) {
+		try {
+			StructDescriptor desc = new StructDescriptor(structName, connection);
+			ResultSetMetaData metaData = desc.getMetaData();
+			int count = metaData.getColumnCount();
+			for (int i = 0; i < count; i++) {
+				FieldMetadata field = new FieldMetadata();
+				field.setMapped(false);
+				field.setOracleColumnName(metaData.getColumnName(i + 1));
+				field.setOracleTypeName(metaData.getColumnTypeName(i + 1));
+				field.setOracleColumnClassName(metaData.getColumnClassName(i + 1));
+				field.setOracleSchemaName(metaData.getSchemaName(i + 1));
+				result.registerField(field);
+			}
+		}
+		catch (SQLException ex) {
+			throw new OsmMappingException("Error reading Oracle metadata for Struct " + structName, ex);
 		}
 	}
 

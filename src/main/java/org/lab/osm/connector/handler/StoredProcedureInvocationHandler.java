@@ -77,20 +77,22 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 		storedProcedure.setFunction(annotation.isFunction());
 
 		Map inputMap = new LinkedHashMap();
-		Object[] inputArgs = (Object[]) args[0];
+		if (args != null && args.length > 0 && ((Object[]) args[0]).length > 0) {
+			Object[] inputArgs = (Object[]) args[0];
 
-		for (OracleParameter parameter : annotation.parameters()) {
-			switch (parameter.mode()) {
-			case IN:
-				Object value = inputArgs[inputMap.size()];
-				registerInputParameter(storedProcedure, parameter, inputMap, value);
-				break;
-			case OUT:
-				registerOutputParameter(storedProcedure, parameter);
-				break;
-			default:
-				// TODO in-out parameter
-				throw new NotImplementedException("Unsupported parameter mode " + parameter.mode());
+			for (OracleParameter parameter : annotation.parameters()) {
+				switch (parameter.mode()) {
+				case IN:
+					Object value = inputArgs[inputMap.size()];
+					registerInputParameter(storedProcedure, parameter, inputMap, value);
+					break;
+				case OUT:
+					registerOutputParameter(storedProcedure, parameter);
+					break;
+				default:
+					// TODO in-out parameter
+					throw new NotImplementedException("Unsupported parameter mode " + parameter.mode());
+				}
 			}
 		}
 		storedProcedure.compile();
@@ -120,9 +122,10 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 	private void registerInputParameter(StoredProcedure storedProcedure, OracleParameter parameter,
 		Map<String, Object> inputMap, Object value) {
 		String name = parameter.name();
+		String typeName = parameter.typeName();
 		int type = parameter.type();
 
-		SqlParameter sqlParam = new SqlParameter(name, type);
+		SqlParameter sqlParam = new SqlParameter(typeName, type);
 		storedProcedure.declareParameter(sqlParam);
 
 		switch (type) {
@@ -142,6 +145,7 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void registerOutputParameter(StoredProcedure storedProcedure, OracleParameter parameter) {
 		String name = parameter.name();
+		String typeName = parameter.typeName();
 		int type = parameter.type();
 		Class<?> returnClass = parameter.returnStructClass();
 		StructMapper<?> structMapper;
@@ -151,13 +155,13 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 		case Types.STRUCT:
 			structMapper = mapperService.mapper(returnClass);
 			sqlReturn = new SqlReturnStruct(structMapper);
-			storedProcedure.declareParameter(new SqlOutParameter(name, type, name, sqlReturn));
+			storedProcedure.declareParameter(new SqlOutParameter(name, type, typeName, sqlReturn));
 			break;
 		case Types.ARRAY:
 			if (returnClass != null) {
 				structMapper = mapperService.mapper(returnClass);
 				sqlReturn = new SqlListStructArray(structMapper);
-				storedProcedure.declareParameter(new SqlOutParameter(name, Types.ARRAY, name, sqlReturn));
+				storedProcedure.declareParameter(new SqlOutParameter(name, Types.ARRAY, typeName, sqlReturn));
 			}
 			else {
 				// TODO

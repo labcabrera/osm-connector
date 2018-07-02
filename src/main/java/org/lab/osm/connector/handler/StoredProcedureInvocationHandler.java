@@ -122,10 +122,9 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 	private void registerInputParameter(StoredProcedure storedProcedure, OracleParameter parameter,
 		Map<String, Object> inputMap, Object value) {
 		String name = parameter.name();
-		String typeName = parameter.typeName();
 		int type = parameter.type();
 
-		SqlParameter sqlParam = new SqlParameter(typeName, type);
+		SqlParameter sqlParam = new SqlParameter(name, type);
 		storedProcedure.declareParameter(sqlParam);
 
 		switch (type) {

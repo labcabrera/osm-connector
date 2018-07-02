@@ -133,6 +133,7 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 			inputMap.put(name, new SqlStructValue(value, structMapper));
 			break;
 		case Types.VARCHAR:
+		case Types.NVARCHAR:
 			inputMap.put(name, value);
 			break;
 		default:

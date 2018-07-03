@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Types;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -129,12 +130,21 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 
 		switch (type) {
 		case Types.STRUCT:
+			// Struct conversion
 			StructMapper<?> structMapper = mapperService.mapper(value.getClass());
 			inputMap.put(name, new SqlStructValue(value, structMapper));
 			break;
 		case Types.VARCHAR:
 		case Types.NVARCHAR:
+		case Types.NUMERIC:
+			// Direct value
 			inputMap.put(name, value);
+			break;
+		case Types.DATE:
+			// Java sql date conversion
+			Date valueAsDate = (Date) value;
+			java.sql.Date sqlDate = valueAsDate != null ? new java.sql.Date(valueAsDate.getTime()) : null;
+			inputMap.put(name, sqlDate);
 			break;
 		default:
 			// TODO

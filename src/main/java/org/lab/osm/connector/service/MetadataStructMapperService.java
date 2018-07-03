@@ -34,9 +34,9 @@ public class MetadataStructMapperService implements StructMapperService {
 	 * @throws SQLException
 	 */
 	public MetadataStructMapperService( //@formatter:off
-		DataSource dataSource,
-		StructDefinitionService definitionService,
-		String packageName) throws SQLException { //@formatter:on
+			DataSource dataSource,
+			StructDefinitionService definitionService,
+			String packageName) throws SQLException { //@formatter:on
 
 		this.metadata = new MappingMetadata();
 		this.definitionService = definitionService;

@@ -168,6 +168,9 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 				throw new NotImplementedException("Not implemented primitive array return type");
 			}
 			break;
+		case Types.NVARCHAR:
+			storedProcedure.declareParameter(new SqlOutParameter(name, Types.NVARCHAR));
+			break;
 		default:
 			// TODO
 			throw new NotImplementedException("Unsupported output type " + parameter.type());

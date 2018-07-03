@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 import org.lab.osm.connector.annotation.OracleCollection;
 import org.lab.osm.connector.annotation.OracleField;
 import org.lab.osm.connector.annotation.OracleStruct;
+import org.lab.osm.connector.exception.OsmConnectorException;
 import org.lab.osm.connector.exception.OsmMappingException;
 import org.lab.osm.connector.metadata.model.FieldMetadata;
 import org.lab.osm.connector.metadata.model.MappingMetadata;
@@ -23,22 +24,25 @@ import lombok.extern.slf4j.Slf4j;
 import oracle.sql.StructDescriptor;
 
 @Slf4j
-public class MetadataCollector {
+public class DefaultMetadataCollector implements MetadataCollector {
 
 	private final DataSource dataSource;
 	private final UnaryOperator<String> nameNormalizer = x -> x.toUpperCase().replaceAll("_", "");
 
-	public MetadataCollector(DataSource dataSource) {
+	public DefaultMetadataCollector(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
 
-	public void readMetadata(MappingMetadata metadata, String packageName) throws SQLException {
+	public void readMetadata(MappingMetadata metadata, String packageName) {
 		try (Connection connection = dataSource.getConnection()) {
 			readMetadata(metadata, packageName, connection);
 		}
+		catch (SQLException ex) {
+			throw new OsmConnectorException("Error reading metadata. Package: " + packageName, ex);
+		}
 	}
 
-	public void readMetadata(MappingMetadata metadata, String packageName, Connection connection) throws SQLException {
+	private void readMetadata(MappingMetadata metadata, String packageName, Connection connection) throws SQLException {
 		Set<Class<?>> structs = new Reflections(packageName).getTypesAnnotatedWith(OracleStruct.class);
 		metadata.registerPackageName(packageName);
 		for (Class<?> structClass : structs) {

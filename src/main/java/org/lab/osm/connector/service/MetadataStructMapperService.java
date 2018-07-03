@@ -36,12 +36,11 @@ public class MetadataStructMapperService implements StructMapperService {
 	public MetadataStructMapperService( //@formatter:off
 			DataSource dataSource,
 			StructDefinitionService definitionService,
+			MetadataCollector metadataCollector,
 			String packageName) throws SQLException { //@formatter:on
-
 		this.metadata = new MappingMetadata();
 		this.definitionService = definitionService;
-		MetadataCollector collector = new MetadataCollector(dataSource);
-		collector.readMetadata(metadata, packageName);
+		metadataCollector.readMetadata(metadata, packageName);
 	}
 
 	/* (non-Javadoc)

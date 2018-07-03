@@ -52,6 +52,9 @@ public class DefaultStructDefinitionService implements StructDefinitionService {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.lab.osm.connector.mapper.StructDefinitionService#arrayDescriptor(java.lang.String, java.sql.Connection)
+	 */
 	@Override
 	public ArrayDescriptor arrayDescriptor(@NonNull String typeName, Connection conn) {
 		try {

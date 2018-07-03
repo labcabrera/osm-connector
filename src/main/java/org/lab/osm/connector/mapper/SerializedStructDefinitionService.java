@@ -44,29 +44,31 @@ public class SerializedStructDefinitionService implements StructDefinitionServic
 	public StructDescriptor structDescriptor(@NonNull String typeName, Connection conn) {
 		try {
 			if (structDescriptorValues.containsKey(typeName)) {
+				// TODO check reusing connections
 				return structDescriptorValues.get(typeName);
 			}
-			else {
-				StructDescriptor desc;
-				File file = getSerializedFile(typeName);
-				if (file.exists()) {
-					log.info("Reading strucy {} descriptor from file", typeName);
-					FileInputStream fis = new FileInputStream(file);
-					ObjectInputStream ois = new ObjectInputStream(fis);
-					desc = (StructDescriptor) ois.readObject();
-					ois.close();
+			StructDescriptor structDescriptor;
+			File file = getSerializedFile(typeName);
+			if (file.exists()) {
+				log.info("Reading strucy {} descriptor from file", typeName);
+				try (FileInputStream fileInputStream = new FileInputStream(file)) {
+					ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+					structDescriptor = (StructDescriptor) objectInputStream.readObject();
+					objectInputStream.close();
 				}
-				else {
-					log.info("Reading strucy {} descriptor from database", typeName);
-					desc = new StructDescriptor(typeName, conn);
-					FileOutputStream fout = new FileOutputStream(file);
-					ObjectOutputStream out = new ObjectOutputStream(fout);
-					out.writeObject(desc);
-					out.close();
-				}
-				structDescriptorValues.put(typeName, desc);
-				return desc;
+				structDescriptor.setConnection(conn);
 			}
+			else {
+				log.info("Reading strucy {} descriptor from database", typeName);
+				structDescriptor = new StructDescriptor(typeName, conn);
+				try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+					ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+					objectOutputStream.writeObject(structDescriptor);
+					objectOutputStream.close();
+				}
+			}
+			structDescriptorValues.put(typeName, structDescriptor);
+			return structDescriptor;
 		}
 		catch (Exception ex) {
 			throw new OsmConnectorException("Error reading struct descriptor " + typeName, ex);
@@ -77,14 +79,31 @@ public class SerializedStructDefinitionService implements StructDefinitionServic
 	public ArrayDescriptor arrayDescriptor(@NonNull String typeName, Connection conn) {
 		try {
 			if (arrayDescriptorValues.containsKey(typeName)) {
+				// TODO check reusing connections
 				return arrayDescriptorValues.get(typeName);
 			}
-			else {
-				log.info("Reading array {} descriptor", typeName);
-				ArrayDescriptor desc = new ArrayDescriptor(typeName, conn);
-				arrayDescriptorValues.put(typeName, desc);
-				return desc;
+			ArrayDescriptor arrayDescriptor;
+			File file = getSerializedFile(typeName);
+			if (file.exists()) {
+				log.info("Reading array {} descriptor from file", typeName);
+				try (FileInputStream fileInputStream = new FileInputStream(file)) {
+					ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+					arrayDescriptor = (ArrayDescriptor) objectInputStream.readObject();
+					objectInputStream.close();
+				}
+				arrayDescriptor.setConnection(conn);
 			}
+			else {
+				log.info("Reading array {} descriptor from database", typeName);
+				arrayDescriptor = new ArrayDescriptor(typeName, conn);
+				try (FileOutputStream fileOutStream = new FileOutputStream(file)) {
+					ObjectOutputStream objectOutStream = new ObjectOutputStream(fileOutStream);
+					objectOutStream.writeObject(arrayDescriptor);
+					objectOutStream.close();
+				}
+			}
+			arrayDescriptorValues.put(typeName, arrayDescriptor);
+			return arrayDescriptor;
 		}
 		catch (Exception ex) {
 			throw new OsmConnectorException("Error reading array descriptor " + typeName, ex);

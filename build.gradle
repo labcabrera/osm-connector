@@ -9,8 +9,8 @@ buildscript {
     useProxy = false	
   }
   repositories {
-    mavenLocal()
     if(useProxy) {
+      mavenLocal()
       maven { url "$System.env.MVN_PROXY" }
     } else {
       mavenCentral()

@@ -1,5 +1,9 @@
 = Oracle Struct Metadata Connector
 
+linkOracleStruct: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleStruct.java
+linkOracleField: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleField.java
+linkOracleCollection: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleCollection.java
+
 image:https://travis-ci.org/labcabrera/osm-connector.svg?branch=master["Build Status", link="https://travis-ci.org/labcabrera/osm-connector"]
 image:https://api.codacy.com/project/badge/Grade/d2e9f91dea274cdcb58c902197b7ac3f["Codacy code quality", link="https://www.codacy.com/app/lab.cabrera/osm-connector?utm_source=github.com&utm_medium=referral&utm_content=labcabrera/osm-connector&utm_campaign=Badge_Grade"]
 
@@ -43,12 +47,12 @@ nos permitirán hacer las conversiones de tipos.
 Las anotaciones que utilizaremos serán:
 
 |===
-|`@OracleStruct`    | Utilizada para establecer el nombre de la entidad de Oracle en nuestra clase
-                      java.
-|`@OracleField`     | Utilizada para establecer el nombre de un campo de una entidad de Oracle de un
-                      modo similar al `@Column` de JPA.
-|`OracleCollection` | Utilizada para mapear una lista de objetos en nuestra entidad de java
-                      representando una colección de Oracle. 
+|{linkOracleStruct}[@OracleStruct]         | Utilizada para establecer el nombre de la entidad de Oracle en nuestra clase
+                                             java.
+|{linkOracleField}[@OracleField]           | Utilizada para establecer el nombre de un campo de una entidad de Oracle de un
+                                             modo similar al `@Column` de JPA.
+|{linkOracleCollection}[@OracleCollection] | Utilizada para mapear una lista de objetos en nuestra entidad de java
+                                             representando una colección de Oracle. 
 |===
 
 De este modo por ejemplo tendremos:

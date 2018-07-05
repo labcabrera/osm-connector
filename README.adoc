@@ -87,7 +87,12 @@ Tenemos dos opciones:
 
 === Utilizando interfaces
 
-TODO
+En primer lugar deberemos declarar nuestra interface extendiendo de
+https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/handler/StoredProcedureExecutor.java[StoredProcedureExecutor].
+
+Nuestra interface deberá tener la anotación
+https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleStoredProcedure.java[OracleStoredProcedure]
+que será la encargada de establecer tanto el nombre del procedimiento o función como los argumentos de entrada salida.
 
 Por ejemplo para invocar a una función de Oracle que recibe como parámetro de entrada un objeto de
 tipo _ORACLE_CUSTOMER_MODEL_ y devuelve una lista de objetos del mismo tipo simplemente tendremos
@@ -115,11 +120,6 @@ public interface CustomerReaderExecutor extends StoredProcedureExecutor {
 }
 ----
 
-////
-=== Utilizando directamente procedimientos almacenados
-
-TODO
-////
 
 == Generación automática de código
 

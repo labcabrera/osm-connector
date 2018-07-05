@@ -5,16 +5,17 @@ image:https://api.codacy.com/project/badge/Grade/d2e9f91dea274cdcb58c902197b7ac3
 
 == Introducción
 
-Librería para poder acceder a procedimientos almacenados de Oracle a través de
+Librería que simplifica el acceso a procedimientos almacenados de Oracle utilizando
 https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html[spring-jdbc]
-a partir de anotaciones.
+a partir de un sistema basado en anotaciones.
 
-La librería ofrece dos funcionalidades principales:
+La librería ofrece las siguietes funcionalidades:
 
 * Mapeo de tipo de datos de Oracle basado en anotaciones.
 * Invocación de lógicas de negocio de Oracle a través de interfaces (similar al sistema de
   repositorios utilizado por Spring Data).
 * Generación automática de código utilizando https://github.com/labcabrera/osm-code-generator[osm-code-generator].
+* Serialización de tipos para evitar accesos innecesarios en las conversiones de los objetos del driver de Oracle.
 
 == Mapeo de entidades
 
@@ -64,7 +65,7 @@ public class Customer {
   private String name;
     
   @OracleCollection("ORACLE_MODEL_PRODUCT_LIST")
-  private List<Products> products;
+  private List<Product> products;
 
   private Address address;
 
@@ -90,7 +91,10 @@ que declarar la interface:
 
 [source,java]
 ----
-@OracleStoredProcedure(name = "MY_ORACLE_PACKAGE.CUSTOMER_SEARCH",
+@OracleStoredProcedure(
+  name = "SP_CUSTOMER_SEARCH",
+  oraclePackage = "OSM_TEST_PACKAGE",
+  owner = "OSM_TEST"
   isFunction = true,
   parameters = {
     @OracleParameter(
@@ -107,9 +111,11 @@ public interface CustomerReaderExecutor extends StoredProcedureExecutor {
 }
 ----
 
+////
 === Utilizando directamente procedimientos almacenados
 
 TODO
+////
 
 == Generación automática de código
 

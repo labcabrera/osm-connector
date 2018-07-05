@@ -6,11 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import org.apache.commons.lang3.StringUtils;
 
 @Retention(RetentionPolicy.RUNTIME)
-// @Target(ElementType.ANNOTATION_TYPE)
 public @interface OracleParameter {
 
 	public enum ParameterType {
-		IN, OUT
+		IN, OUT, IN_OUT
 	}
 
 	String name();

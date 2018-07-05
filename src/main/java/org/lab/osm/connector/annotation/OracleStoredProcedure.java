@@ -11,6 +11,10 @@ public @interface OracleStoredProcedure {
 
 	String name();
 
+	String owner() default "";
+
+	String oraclePackage() default "";
+
 	boolean isFunction() default false;
 
 	OracleParameter[] parameters() default {};

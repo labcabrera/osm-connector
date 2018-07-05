@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.StringUtils;
 import org.lab.osm.connector.annotation.OracleParameter;
 import org.lab.osm.connector.annotation.OracleStoredProcedure;
 import org.lab.osm.connector.exception.OsmMissingAnnotationException;
@@ -26,6 +27,7 @@ import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.SqlReturnType;
 import org.springframework.jdbc.object.StoredProcedure;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -71,7 +73,7 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 			throw new OsmMissingAnnotationException(interfaceClass, OracleStoredProcedure.class);
 		}
 
-		String storedProcedureName = annotation.name();
+		String storedProcedureName = resolveStoredProcedureName(annotation);
 		log.trace("Using stored procedure {}", storedProcedureName);
 
 		StoredProcedure storedProcedure = new DelegateStoredProcedure(dataSource, storedProcedureName);
@@ -185,6 +187,20 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 			// TODO
 			throw new NotImplementedException("Unsupported output type " + parameter.type());
 		}
+	}
 
+	private String resolveStoredProcedureName(@NonNull OracleStoredProcedure annotation) {
+		String owner = annotation.owner();
+		String oraclePackage = annotation.oraclePackage();
+		String name = annotation.name();
+		StringBuilder sb = new StringBuilder();
+		if (StringUtils.isNotBlank(owner)) {
+			sb.append(owner).append(".");
+		}
+		if (StringUtils.isNotBlank(oraclePackage)) {
+			sb.append(oraclePackage).append(".");
+		}
+		sb.append(name);
+		return sb.toString();
 	}
 }

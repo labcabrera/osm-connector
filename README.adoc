@@ -36,8 +36,9 @@ public interface StructMapper<T> {
 }
 ----
 
-Esta interface está implementada por la clase `MetadataStructMapper` que utiliza un metamodelo
-basado en anotaciones para hacer las conversiones de tipos.
+Esta interface está implementada por la clase 
+https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/mapper/MetadataStructMapper.java[MetadataStructMapper]
+que utiliza un metamodelo basado en anotaciones para hacer las conversiones de tipos.
 
 === Definición del modelo
 
@@ -91,7 +92,7 @@ En primer lugar deberemos declarar nuestra interface extendiendo de
 https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/handler/StoredProcedureExecutor.java[StoredProcedureExecutor].
 
 Nuestra interface deberá tener la anotación
-https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleStoredProcedure.java[OracleStoredProcedure]
+https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleStoredProcedure.java[@OracleStoredProcedure]
 que será la encargada de establecer tanto el nombre del procedimiento o función como los argumentos de entrada salida.
 
 Por ejemplo para invocar a una función de Oracle que recibe como parámetro de entrada un objeto de
@@ -119,6 +120,22 @@ que declarar la interface:
 public interface CustomerReaderExecutor extends StoredProcedureExecutor {
 }
 ----
+
+Sin la necesidad de definir ningún metodo dentro de nuestra interface, que extenderá el método que
+utilizaremos para invocar a nuestro procedimiento almacenado de acuerdo a:
+
+[source,java]
+----
+public interface StoredProcedureExecutor {
+
+	Map<String, Object> execute(Object... args);
+
+}
+----
+
+Los argumentos de entrada serán un array de objetos que deberá coincidir con los argumentos de
+entrada definidos por el procedimiento, y como resultado revolverá un mapa con los diferentes
+parámetros de salida.
 
 
 == Generación automática de código

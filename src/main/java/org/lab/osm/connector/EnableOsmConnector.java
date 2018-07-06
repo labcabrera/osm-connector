@@ -30,4 +30,6 @@ public @interface EnableOsmConnector {
 	 */
 	String[] repositoryPackages() default {};
 
+	String dataBaseName() default "";
+
 }

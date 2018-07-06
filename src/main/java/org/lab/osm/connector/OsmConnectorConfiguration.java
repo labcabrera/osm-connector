@@ -25,6 +25,7 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 		AnnotationAttributes attributes = AnnotationAttributes
 			.fromMap(importingClassMetadata.getAnnotationAttributes(EnableOsmConnector.class.getName(), false));
+
 		String[] modelPackages = attributes.getStringArray("modelPackages");
 		String[] procedurePackages = attributes.getStringArray("repositoryPackages");
 

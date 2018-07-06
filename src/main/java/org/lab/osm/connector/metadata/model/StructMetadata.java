@@ -16,10 +16,24 @@ import lombok.Setter;
 @Setter
 public class StructMetadata {
 
+	/**
+	 * Java entity type.
+	 */
 	private Class<?> mappedClass;
+
+	/**
+	 * Oracle object name.
+	 */
 	private String strucyName;
-	private int attributeCount;
+
+	/**
+	 * Mapped fields between Oracle and java type.
+	 */
 	private final List<FieldMetadata> fields;
+
+	/**
+	 * Unmapped fields (defined in java entity and not present in the oracle model).
+	 */
 	private final List<FieldMetadata> unmappedFields;
 
 	/**

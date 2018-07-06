@@ -138,6 +138,21 @@ entrada definidos por el procedimiento, y como resultado revolverá un mapa con 
 parámetros de salida.
 
 
+== Configuración básica
+
+La forma más sencilla de configurar el conector es simplemente añadir la anotación
+https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/EnableOsmConnector.java[@EnableOsmConnector]
+en nuestras clases de configuración de Spring:
+
+[source,java]
+----
+@EnableOsmConnector(
+  modelPackages = "org.lab.samples.osm.participant.model",
+  executorPackages = "org.lab.samples.osm.participant.executor")
+public class MyApplicationConfiguration { ... }
+----
+
+
 == Generación automática de código
 
 En lugar de generar tanto el modelo como las clases de forma manual podemos utilizar el proyecto

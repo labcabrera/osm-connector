@@ -1,6 +1,5 @@
 package org.lab.osm.connector.handler;
 
-import java.util.List;
 import java.util.Set;
 
 import org.lab.osm.connector.annotation.OracleStoredProcedure;
@@ -27,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OracleStoredProcedureAnnotationProcessor implements BeanFactoryPostProcessor {
 
 	@Setter
-	private List<String> basePackages;
+	private String[] basePackages;
 
 	/* (non-Javadoc)
 	 * @see org.springframework.beans.factory.config.BeanFactoryPostProcessor#postProcessBeanFactory(org.springframework.beans.factory.config.ConfigurableListableBeanFactory)
@@ -35,7 +34,7 @@ public class OracleStoredProcedureAnnotationProcessor implements BeanFactoryPost
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		log.debug("Processing Oracle stored procedure invocation handlers");
-		Assert.isTrue(basePackages != null && basePackages.size() > 0, "Required base packages");
+		Assert.isTrue(basePackages != null && basePackages.length > 0, "Required base packages");
 		DefaultListableBeanFactory registry = (DefaultListableBeanFactory) beanFactory;
 		for (String basePackage : basePackages) {
 			log.debug("Scanning {}", basePackage);

@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Import;
 
 /**
@@ -22,14 +23,16 @@ public @interface EnableOsmConnector {
 	 * List of packages used to scan entity model objects.
 	 * @return Model package list.
 	 */
-	String[] modelPackages() default {};
+	String[] modelPackages();
 
 	/**
 	 * List of packages used to discover proxy interface methods.
 	 * @return Interface package list
 	 */
-	String[] repositoryPackages() default {};
+	String[] executorPackages();
 
-	String dataBaseName() default "";
+	String serializationFolder() default StringUtils.EMPTY;
+
+	String dataBaseName() default StringUtils.EMPTY;
 
 }

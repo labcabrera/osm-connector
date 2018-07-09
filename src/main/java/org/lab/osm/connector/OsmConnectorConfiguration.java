@@ -5,6 +5,7 @@ import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.lab.osm.connector.exception.OsmConnectorException;
 import org.lab.osm.connector.handler.OracleStoredProcedureAnnotationProcessor;
+import org.lab.osm.connector.mapper.DefaultStructDefinitionService;
 import org.lab.osm.connector.mapper.StructDefinitionService;
 import org.lab.osm.connector.metadata.DefaultMetadataCollector;
 import org.lab.osm.connector.metadata.MetadataCollector;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 
@@ -52,8 +54,8 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) registry;
 		processOracleRepositoryAnnotationProcessor(beanFactory, executorPackages);
 		processMetadataCollector(beanFactory, dataBaseName);
-		processMetadataStructMapperService(beanFactory, modelPackages, dataBaseName);
 		processDefaultStructDefinitionService(beanFactory);
+		processMetadataStructMapperService(beanFactory, modelPackages, dataBaseName);
 	}
 
 	private void processOracleRepositoryAnnotationProcessor(DefaultListableBeanFactory beanFactory,
@@ -99,6 +101,7 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		if (names.length > 0) {
 			return;
 		}
+
 		log.debug(MSG_NEW_BEAN_DEFINITION, MetadataCollector.class.getName());
 		String dataSourceName = resolveDataSourceName(beanFactory, customDataSourceBeanName);
 		// TODO Json metadata collector impl
@@ -118,9 +121,9 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		}
 		log.debug(MSG_NEW_BEAN_DEFINITION, StructDefinitionService.class);
 		// TODO Json metadata collector impl
-		String beanName = getBeanName(MetadataCollector.class);
+		String beanName = getBeanName(StructDefinitionService.class);
 		BeanDefinition beanDef = BeanDefinitionBuilder // @formatter:off
-			.genericBeanDefinition(StructDefinitionService.class)
+			.genericBeanDefinition(DefaultStructDefinitionService.class)
 			.getBeanDefinition(); //@formatter:on
 		beanFactory.registerBeanDefinition(beanName, beanDef);
 	}
@@ -135,7 +138,12 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 	}
 
 	private String getBeanName(@NonNull DefaultListableBeanFactory beanFactory, @NonNull Class<?> type) {
-		String[] names = beanFactory.getBeanNamesForType(type);
+
+		ResolvableType rt = ResolvableType.forClass(type);
+
+		beanFactory.getBeanNamesForType(rt);
+
+		String[] names = beanFactory.getBeanNamesForType(rt);
 		if (names.length == 0) {
 			throw new OsmConnectorException("Undefined bean definition for class " + type.getName());
 		}

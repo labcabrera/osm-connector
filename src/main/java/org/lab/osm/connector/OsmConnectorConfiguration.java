@@ -6,8 +6,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.lab.osm.connector.exception.OsmConnectorException;
 import org.lab.osm.connector.handler.OracleStoredProcedureAnnotationProcessor;
 import org.lab.osm.connector.mapper.DefaultStructDefinitionService;
+import org.lab.osm.connector.mapper.SerializedStructDefinitionService;
 import org.lab.osm.connector.mapper.StructDefinitionService;
 import org.lab.osm.connector.metadata.DefaultMetadataCollector;
+import org.lab.osm.connector.metadata.JsonMetadataCollector;
 import org.lab.osm.connector.metadata.MetadataCollector;
 import org.lab.osm.connector.service.MetadataStructMapperService;
 import org.lab.osm.connector.service.StructMapperService;
@@ -20,6 +22,8 @@ import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -47,14 +51,16 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		String[] modelPackages = attributes.getStringArray("modelPackages");
 		String[] executorPackages = attributes.getStringArray("executorPackages");
 		String dataBaseName = attributes.getString("dataBaseName");
+		String serializationFolder = attributes.getString("serializationFolder");
+		String serializationPrefix = attributes.getString("serializationPrefix");
 
 		log.info("Configuring OSM connector. Model packages {}, procedure packages: {}", modelPackages,
 			executorPackages);
 
 		DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) registry;
 		processOracleRepositoryAnnotationProcessor(beanFactory, executorPackages);
-		processMetadataCollector(beanFactory, dataBaseName);
-		processDefaultStructDefinitionService(beanFactory);
+		processMetadataCollector(beanFactory, dataBaseName, serializationFolder, serializationPrefix);
+		processStructDefinitionService(beanFactory, serializationFolder, serializationPrefix);
 		processMetadataStructMapperService(beanFactory, modelPackages, dataBaseName);
 	}
 
@@ -66,11 +72,40 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		}
 		log.debug(MSG_NEW_BEAN_DEFINITION, DefaultListableBeanFactory.class.getName());
 		String beanName = getBeanName(OracleStoredProcedureAnnotationProcessor.class);
-		BeanDefinition beanDef = BeanDefinitionBuilder // @formatter:off
+		BeanDefinition beanDefinition = BeanDefinitionBuilder // @formatter:off
 			.genericBeanDefinition(OracleStoredProcedureAnnotationProcessor.class)
 			.addPropertyValue("basePackages", executorPackages)
 			.getBeanDefinition(); //@formatter:on
-		beanFactory.registerBeanDefinition(beanName, beanDef);
+		beanFactory.registerBeanDefinition(beanName, beanDefinition);
+	}
+
+	private void processMetadataCollector(DefaultListableBeanFactory beanFactory, String customDataSourceBeanName,
+		String serializationFolder, String serializationPrefix) {
+		String[] names = beanFactory.getBeanNamesForType(MetadataCollector.class);
+		if (names.length > 0) {
+			return;
+		}
+		log.debug(MSG_NEW_BEAN_DEFINITION, MetadataCollector.class.getName());
+		String dataSourceName = resolveDataSourceName(beanFactory, customDataSourceBeanName);
+		BeanDefinition beanDefinition;
+		String beanName = getBeanName(MetadataCollector.class);
+		if (StringUtils.isBlank(serializationFolder)) {
+			beanDefinition = BeanDefinitionBuilder // @formatter:off
+				.genericBeanDefinition(DefaultMetadataCollector.class)
+				.addConstructorArgReference(dataSourceName)
+				.getBeanDefinition(); //@formatter:on
+		}
+		else {
+			String objectMapperBeanName = getBeanName(beanFactory, ObjectMapper.class);
+			beanDefinition = BeanDefinitionBuilder // @formatter:off
+				.genericBeanDefinition(JsonMetadataCollector.class)
+				.addConstructorArgReference(dataSourceName)
+				.addConstructorArgReference(objectMapperBeanName)
+				.addConstructorArgValue(serializationFolder)
+				.addConstructorArgValue(serializationPrefix)
+				.getBeanDefinition(); //@formatter:on
+		}
+		beanFactory.registerBeanDefinition(beanName, beanDefinition);
 	}
 
 	private void processMetadataStructMapperService(DefaultListableBeanFactory beanFactory, String[] modelPackages,
@@ -96,36 +131,28 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		beanFactory.registerBeanDefinition(beanName, beanDef);
 	}
 
-	private void processMetadataCollector(DefaultListableBeanFactory beanFactory, String customDataSourceBeanName) {
-		String[] names = beanFactory.getBeanNamesForType(MetadataCollector.class);
-		if (names.length > 0) {
-			return;
-		}
-
-		log.debug(MSG_NEW_BEAN_DEFINITION, MetadataCollector.class.getName());
-		String dataSourceName = resolveDataSourceName(beanFactory, customDataSourceBeanName);
-		// TODO Json metadata collector impl
-		// String objectMapperBeanName = getBeanName(beanFactory, ObjectMapper.class);
-		String beanName = getBeanName(MetadataCollector.class);
-		BeanDefinition beanDef = BeanDefinitionBuilder // @formatter:off
-			.genericBeanDefinition(DefaultMetadataCollector.class)
-			.addConstructorArgReference(dataSourceName)
-			.getBeanDefinition(); //@formatter:on
-		beanFactory.registerBeanDefinition(beanName, beanDef);
-	}
-
-	private void processDefaultStructDefinitionService(DefaultListableBeanFactory beanFactory) {
+	private void processStructDefinitionService(DefaultListableBeanFactory beanFactory, String serializationFolder,
+		String serializationPrefix) {
 		String[] names = beanFactory.getBeanNamesForType(StructDefinitionService.class);
 		if (names.length > 0) {
 			return;
 		}
 		log.debug(MSG_NEW_BEAN_DEFINITION, StructDefinitionService.class);
-		// TODO Json metadata collector impl
 		String beanName = getBeanName(StructDefinitionService.class);
-		BeanDefinition beanDef = BeanDefinitionBuilder // @formatter:off
-			.genericBeanDefinition(DefaultStructDefinitionService.class)
-			.getBeanDefinition(); //@formatter:on
-		beanFactory.registerBeanDefinition(beanName, beanDef);
+		BeanDefinition beanDefinition;
+		if (StringUtils.isBlank(serializationFolder)) {
+			beanDefinition = BeanDefinitionBuilder // @formatter:off
+				.genericBeanDefinition(DefaultStructDefinitionService.class)
+				.getBeanDefinition(); //@formatter:on
+		}
+		else {
+			beanDefinition = BeanDefinitionBuilder // @formatter:off
+				.genericBeanDefinition(SerializedStructDefinitionService.class)
+				.addConstructorArgValue(serializationFolder)
+				.addConstructorArgValue(serializationPrefix)
+				.getBeanDefinition(); //@formatter:on
+		}
+		beanFactory.registerBeanDefinition(beanName, beanDefinition);
 	}
 
 	private String resolveDataSourceName(DefaultListableBeanFactory beanFactory, String customDataSourceBeanName) {

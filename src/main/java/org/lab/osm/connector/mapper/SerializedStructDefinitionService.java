@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lab.osm.connector.exception.OsmConnectorException;
 
 import lombok.NonNull;
@@ -22,13 +23,19 @@ public class SerializedStructDefinitionService implements StructDefinitionServic
 	private String FILE_EXT = ".ser";
 
 	private final File folder;
+	private final String filePrefix;
 	private final Map<String, StructDescriptor> structDescriptorValues;
 	private final Map<String, ArrayDescriptor> arrayDescriptorValues;
 
 	public SerializedStructDefinitionService(String serializedBaseFolder) {
+		this(serializedBaseFolder, null);
+	}
+
+	public SerializedStructDefinitionService(String serializedBaseFolder, String filePrefix) {
 		structDescriptorValues = new HashMap<>();
 		arrayDescriptorValues = new HashMap<>();
 		folder = new File(serializedBaseFolder);
+		this.filePrefix = filePrefix;
 		if (!folder.exists() && !folder.mkdirs()) {
 			throw new OsmConnectorException("Cant create Oracle serialization folder " + folder.getAbsolutePath());
 		}
@@ -112,7 +119,12 @@ public class SerializedStructDefinitionService implements StructDefinitionServic
 
 	// TODO posibilidad de parametrizar la obtencion del nombre
 	private File getSerializedFile(String typeName) {
-		return new File(folder, typeName + FILE_EXT);
+		StringBuilder fileName = new StringBuilder();
+		if (StringUtils.isNotBlank(filePrefix)) {
+			fileName.append(filePrefix).append("-");
+		}
+		fileName.append(typeName).append(FILE_EXT);
+		return new File(folder, fileName.toString());
 	}
 
 }

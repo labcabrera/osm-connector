@@ -31,8 +31,22 @@ public @interface EnableOsmConnector {
 	 */
 	String[] executorPackages();
 
+	/**
+	 * Optional local folder to read serialization metadata (instead reading it directly from Oracle).
+	 * @return
+	 */
 	String serializationFolder() default StringUtils.EMPTY;
 
+	/**
+	 * Optional file prefix to read serialization metadata (instead reading it directly from Oracle).
+	 * @return
+	 */
+	String serializationPrefix() default StringUtils.EMPTY;
+
+	/**
+	 * Optional database name (when using multiple DataSource beans).
+	 * @return
+	 */
 	String dataBaseName() default StringUtils.EMPTY;
 
 }

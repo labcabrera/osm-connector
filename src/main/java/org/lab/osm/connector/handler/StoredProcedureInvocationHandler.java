@@ -3,6 +3,7 @@ package org.lab.osm.connector.handler;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.sql.JDBCType;
 import java.sql.Types;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -124,9 +125,11 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void registerInputParameter(StoredProcedure storedProcedure, OracleParameter parameter,
 		Map<String, Object> inputMap, Object value) {
-		String name = parameter.name();
 		int type = parameter.type();
+		String name = parameter.name();
+		String typeName = StringUtils.isNotBlank(parameter.typeName()) ? parameter.typeName() : valueOfType(type);
 
+		log.trace("Register input parameter '{}' ({}/{}): '{}'", name, typeName, type, value);
 		SqlParameter sqlParam = new SqlParameter(name, type, parameter.typeName());
 		storedProcedure.declareParameter(sqlParam);
 
@@ -167,12 +170,14 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 		case Types.STRUCT:
 			structMapper = mapperService.mapper(returnClass);
 			sqlReturn = new SqlReturnStruct(structMapper);
+			log.trace("Register output struct parameter '{}' using type '{}'", name, typeName);
 			storedProcedure.declareParameter(new SqlOutParameter(name, type, typeName, sqlReturn));
 			break;
 		case Types.ARRAY:
 			if (returnClass != null) {
 				structMapper = mapperService.mapper(returnClass);
 				sqlReturn = new SqlListStructArray(structMapper);
+				log.trace("Register output array parameter '{}' using type '{}'", name, typeName);
 				storedProcedure.declareParameter(new SqlOutParameter(name, Types.ARRAY, typeName, sqlReturn));
 			}
 			else {
@@ -181,6 +186,9 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 			}
 			break;
 		case Types.NVARCHAR:
+		case Types.NUMERIC:
+		case Types.DATE:
+			log.trace("Register output primitive parameter '{}' as ''", name, valueOfType(type));
 			storedProcedure.declareParameter(new SqlOutParameter(name, Types.NVARCHAR));
 			break;
 		default:
@@ -202,5 +210,9 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 		}
 		sb.append(name);
 		return sb.toString();
+	}
+
+	private String valueOfType(int sqlType) {
+		return JDBCType.valueOf(sqlType).getName();
 	}
 }

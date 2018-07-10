@@ -37,7 +37,7 @@ public class OracleStoredProcedureAnnotationProcessor implements BeanFactoryPost
 		Assert.isTrue(basePackages != null && basePackages.length > 0, "Required base packages");
 		DefaultListableBeanFactory registry = (DefaultListableBeanFactory) beanFactory;
 		for (String basePackage : basePackages) {
-			log.debug("Scanning {}", basePackage);
+			log.debug("Scanning package '{}'", basePackage);
 			postProcessPackage(basePackage, registry);
 		}
 	}
@@ -46,7 +46,7 @@ public class OracleStoredProcedureAnnotationProcessor implements BeanFactoryPost
 		Set<Class<?>> repositories = new Reflections(basePackage).getTypesAnnotatedWith(OracleStoredProcedure.class);
 		for (Class<?> clazz : repositories) {
 			String beanName = clazz.getSimpleName() + "OsmInvocationHandler";
-			log.debug("Registering handler {} as {}", clazz.getName(), beanName);
+			log.debug("Registering handler '{}' as '{}'", clazz.getSimpleName(), beanName);
 
 			AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder //@formatter:off
 				.genericBeanDefinition(StoredProcedureInvocationHandler.class)

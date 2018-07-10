@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar {
 
-	private static final String MSG_NEW_BEAN_DEFINITION = "No {} has been defined. Creating default implementation";
+	private static final String MSG_NEW_BEAN_DEFINITION = "No bean '{}' has been defined. Creating default implementation";
 
 	/* (non-Javadoc)
 	 * @see org.springframework.context.annotation.ImportBeanDefinitionRegistrar#registerBeanDefinitions(org.springframework.core.type.AnnotationMetadata, org.springframework.beans.factory.support.BeanDefinitionRegistry)
@@ -70,7 +70,7 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		if (names.length > 0) {
 			return;
 		}
-		log.debug(MSG_NEW_BEAN_DEFINITION, DefaultListableBeanFactory.class.getName());
+		log.debug(MSG_NEW_BEAN_DEFINITION, OracleStoredProcedureAnnotationProcessor.class.getSimpleName());
 		String beanName = getBeanName(OracleStoredProcedureAnnotationProcessor.class);
 		BeanDefinition beanDefinition = BeanDefinitionBuilder // @formatter:off
 			.genericBeanDefinition(OracleStoredProcedureAnnotationProcessor.class)
@@ -85,7 +85,7 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		if (names.length > 0) {
 			return;
 		}
-		log.debug(MSG_NEW_BEAN_DEFINITION, MetadataCollector.class.getName());
+		log.debug(MSG_NEW_BEAN_DEFINITION, MetadataCollector.class.getSimpleName());
 		String dataSourceName = resolveDataSourceName(beanFactory, customDataSourceBeanName);
 		BeanDefinition beanDefinition;
 		String beanName = getBeanName(MetadataCollector.class);
@@ -114,7 +114,7 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		if (names.length > 0) {
 			return;
 		}
-		log.debug(MSG_NEW_BEAN_DEFINITION, StructMapperService.class.getName());
+		log.debug(MSG_NEW_BEAN_DEFINITION, StructMapperService.class.getSimpleName());
 
 		String definitionServiceBeanName = getBeanName(beanFactory, StructDefinitionService.class);
 		String metadataCollectorBeanName = getBeanName(beanFactory, MetadataCollector.class);
@@ -137,7 +137,7 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		if (names.length > 0) {
 			return;
 		}
-		log.debug(MSG_NEW_BEAN_DEFINITION, StructDefinitionService.class);
+		log.debug(MSG_NEW_BEAN_DEFINITION, StructDefinitionService.class.getSimpleName());
 		String beanName = getBeanName(StructDefinitionService.class);
 		BeanDefinition beanDefinition;
 		if (StringUtils.isBlank(serializationFolder)) {

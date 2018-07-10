@@ -5,6 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  *
  * @author lab.cabrera@gmail.com
@@ -19,6 +21,12 @@ public @interface OracleCollection {
 	 * 
 	 * @return
 	 */
-	String value() default "";
+	String value() default StringUtils.EMPTY;
+
+	/**
+	 * Database owner.
+	 * @return
+	 */
+	String owner() default StringUtils.EMPTY;
 
 }

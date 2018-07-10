@@ -127,7 +127,7 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 		String name = parameter.name();
 		int type = parameter.type();
 
-		SqlParameter sqlParam = new SqlParameter(name, type);
+		SqlParameter sqlParam = new SqlParameter(name, type, parameter.typeName());
 		storedProcedure.declareParameter(sqlParam);
 
 		switch (type) {

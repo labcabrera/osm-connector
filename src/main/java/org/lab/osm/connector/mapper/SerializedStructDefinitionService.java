@@ -17,6 +17,14 @@ import lombok.extern.slf4j.Slf4j;
 import oracle.sql.ArrayDescriptor;
 import oracle.sql.StructDescriptor;
 
+/**
+ * 
+ * {@link StructDefinitionService} implementation that uses serialized data in the file system structure to define
+ * Oracle structures.
+ * 
+ * @author lab.cabrera@gmail.com
+ * @since 1.0.0
+ */
 @Slf4j
 public class SerializedStructDefinitionService implements StructDefinitionService {
 
@@ -27,10 +35,20 @@ public class SerializedStructDefinitionService implements StructDefinitionServic
 	private final Map<String, StructDescriptor> structDescriptorValues;
 	private final Map<String, ArrayDescriptor> arrayDescriptorValues;
 
+	/**
+	 * Public constructor.
+	 * 
+	 * @param serializedBaseFolder Folder to read serialized files.
+	 */
 	public SerializedStructDefinitionService(String serializedBaseFolder) {
 		this(serializedBaseFolder, null);
 	}
 
+	/**
+	 * Public constructor.
+	 * @param serializedBaseFolder Folder to read serialized files.
+	 * @param filePrefix Stored file prefix.
+	 */
 	public SerializedStructDefinitionService(String serializedBaseFolder, String filePrefix) {
 		structDescriptorValues = new HashMap<>();
 		arrayDescriptorValues = new HashMap<>();
@@ -82,6 +100,9 @@ public class SerializedStructDefinitionService implements StructDefinitionServic
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.lab.osm.connector.mapper.StructDefinitionService#arrayDescriptor(java.lang.String, java.sql.Connection)
+	 */
 	@Override
 	public ArrayDescriptor arrayDescriptor(@NonNull String typeName, Connection conn) {
 		try {
@@ -117,7 +138,7 @@ public class SerializedStructDefinitionService implements StructDefinitionServic
 		}
 	}
 
-	// TODO posibilidad de parametrizar la obtencion del nombre
+	// TODO consider use a service
 	private File getSerializedFile(String typeName) {
 		StringBuilder fileName = new StringBuilder();
 		if (StringUtils.isNotBlank(filePrefix)) {

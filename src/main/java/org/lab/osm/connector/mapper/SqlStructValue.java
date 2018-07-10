@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 public class SqlStructValue<T> extends AbstractSqlTypeValue {
 
 	private final T source;
+
 	private final StructMapper<T> mapper;
 
 	/* (non-Javadoc)

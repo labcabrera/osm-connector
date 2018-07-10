@@ -29,6 +29,13 @@ import oracle.sql.ArrayDescriptor;
 import oracle.sql.STRUCT;
 import oracle.sql.StructDescriptor;
 
+/**
+ * 
+ * Default {@link StructMapper} using readed metadata information from the entity model annotations.
+ * 
+ * @author lab.cabrera@gmail.com
+ * @since 1.0.0
+ */
 @Slf4j
 public class MetadataStructMapper<T> implements StructMapper<T> {
 
@@ -37,7 +44,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 	private final MappingMetadata metadata;
 	private final StructDefinitionService definitionService;
 
-	// TODO use customizable service
+	// TODO consider using service
 	private final UnaryOperator<String> nameNormalizer;
 
 	public MetadataStructMapper( //@formatter:off
@@ -53,6 +60,9 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 		this.nameNormalizer = x -> x.toUpperCase().replaceAll("_", StringUtils.EMPTY);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.lab.osm.connector.mapper.StructMapper#toStruct(java.lang.Object, java.sql.Connection)
+	 */
 	@Override
 	public STRUCT toStruct(@NonNull T source, Connection conn) throws SQLException {
 
@@ -85,6 +95,9 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.lab.osm.connector.mapper.StructMapper#fromStruct(oracle.sql.STRUCT)
+	 */
 	@Override
 	public T fromStruct(@NonNull STRUCT struct) throws SQLException {
 		log.trace("Converting struct {} to mapped class {}", struct.getSQLTypeName(), mappedClass.getName());
@@ -133,7 +146,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 		else {
 			String javaFieldName = mappingField.getJavaAttributeName();
 			if (sourceBeanWrapper.isReadableProperty(javaFieldName)) {
-				log.debug("Mapped {} to field {}", javaFieldName, mappingField.getOracleColumnName());
+				log.trace("Mapped {} to field {}", javaFieldName, mappingField.getOracleColumnName());
 				result = sourceBeanWrapper.getPropertyValue(javaFieldName);
 
 				if (result != null) {

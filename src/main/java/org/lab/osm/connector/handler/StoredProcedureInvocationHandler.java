@@ -188,8 +188,8 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 		case Types.NVARCHAR:
 		case Types.NUMERIC:
 		case Types.DATE:
-			log.trace("Register output primitive parameter '{}' as ''", name, valueOfType(type));
-			storedProcedure.declareParameter(new SqlOutParameter(name, Types.NVARCHAR));
+			log.trace("Register output primitive parameter '{}' as '{}'", name, valueOfType(type));
+			storedProcedure.declareParameter(new SqlOutParameter(name, type));
 			break;
 		default:
 			// TODO

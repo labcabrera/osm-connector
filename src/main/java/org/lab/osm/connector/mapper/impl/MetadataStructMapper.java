@@ -1,4 +1,4 @@
-package org.lab.osm.connector.mapper;
+package org.lab.osm.connector.mapper.impl;
 
 import java.sql.Connection;
 import java.sql.ResultSetMetaData;
@@ -10,6 +10,8 @@ import java.util.function.UnaryOperator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.lab.osm.connector.exception.OsmMappingException;
+import org.lab.osm.connector.mapper.StructDefinitionService;
+import org.lab.osm.connector.mapper.StructMapper;
 import org.lab.osm.connector.metadata.model.FieldMetadata;
 import org.lab.osm.connector.metadata.model.MappingMetadata;
 import org.lab.osm.connector.metadata.model.StructMetadata;
@@ -215,8 +217,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 		}
 		String collectionName = mappingField.getOracleTypeName();
 		ArrayDescriptor arrayDescriptor = definitionService.arrayDescriptor(collectionName, connection);
-		ARRAY oracleArray = new ARRAY(arrayDescriptor, connection, values);
-		return oracleArray;
+		return new ARRAY(arrayDescriptor, connection, values);
 	}
 
 }

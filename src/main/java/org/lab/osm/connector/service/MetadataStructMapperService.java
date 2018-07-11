@@ -4,9 +4,11 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.lab.osm.connector.mapper.MetadataStructMapper;
+import org.lab.osm.connector.mapper.ArrayMapper;
 import org.lab.osm.connector.mapper.StructDefinitionService;
 import org.lab.osm.connector.mapper.StructMapper;
+import org.lab.osm.connector.mapper.impl.MetadataArrayMapper;
+import org.lab.osm.connector.mapper.impl.MetadataStructMapper;
 import org.lab.osm.connector.metadata.MetadataCollector;
 import org.lab.osm.connector.metadata.model.MappingMetadata;
 
@@ -51,6 +53,14 @@ public class MetadataStructMapperService implements StructMapperService {
 	@Override
 	public <T> StructMapper<T> mapper(Class<T> mappedClass) {
 		return new MetadataStructMapper<>(mappedClass, this, metadata, definitionService);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.lab.osm.connector.service.StructMapperService#listMapper(java.lang.Class)
+	 */
+	@Override
+	public <T> ArrayMapper<T> arrayMapper(Class<T> mappedClass, String oracleCollectionName) {
+		return new MetadataArrayMapper<>(mappedClass, oracleCollectionName, this, metadata, definitionService);
 	}
 
 }

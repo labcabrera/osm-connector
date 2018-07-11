@@ -1,5 +1,6 @@
 package org.lab.osm.connector.service;
 
+import org.lab.osm.connector.mapper.ArrayMapper;
 import org.lab.osm.connector.mapper.StructMapper;
 
 /**
@@ -17,4 +18,6 @@ public interface StructMapperService {
 	 * @return StructMapper
 	 */
 	<T> StructMapper<T> mapper(Class<T> mappedClass);
+
+	<T> ArrayMapper<T> arrayMapper(Class<T> mappedClass, String collectionName);
 }

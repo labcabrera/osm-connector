@@ -1,4 +1,4 @@
-package org.lab.osm.connector.mapper;
+package org.lab.osm.connector.mapper.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.lab.osm.connector.exception.OsmConnectorException;
+import org.lab.osm.connector.mapper.StructDefinitionService;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;

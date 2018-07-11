@@ -1,10 +1,11 @@
-package org.lab.osm.connector.mapper;
+package org.lab.osm.connector.mapper.impl;
 
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.lab.osm.connector.exception.OsmConnectorException;
+import org.lab.osm.connector.mapper.StructDefinitionService;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;

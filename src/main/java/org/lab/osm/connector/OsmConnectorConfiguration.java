@@ -5,9 +5,10 @@ import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.lab.osm.connector.exception.OsmConnectorException;
 import org.lab.osm.connector.handler.OracleStoredProcedureAnnotationProcessor;
-import org.lab.osm.connector.mapper.DefaultStructDefinitionService;
-import org.lab.osm.connector.mapper.SerializedStructDefinitionService;
+import org.lab.osm.connector.handler.StoredProcedureHandlerParameterProcessor;
 import org.lab.osm.connector.mapper.StructDefinitionService;
+import org.lab.osm.connector.mapper.impl.DefaultStructDefinitionService;
+import org.lab.osm.connector.mapper.impl.SerializedStructDefinitionService;
 import org.lab.osm.connector.metadata.DefaultMetadataCollector;
 import org.lab.osm.connector.metadata.JsonMetadataCollector;
 import org.lab.osm.connector.metadata.MetadataCollector;
@@ -62,6 +63,7 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		processMetadataCollector(beanFactory, dataBaseName, serializationFolder, serializationPrefix);
 		processStructDefinitionService(beanFactory, serializationFolder, serializationPrefix);
 		processMetadataStructMapperService(beanFactory, modelPackages, dataBaseName);
+		processStoredProcedureHandlerParameterProcessor(beanFactory);
 	}
 
 	private void processOracleRepositoryAnnotationProcessor(DefaultListableBeanFactory beanFactory,
@@ -155,6 +157,21 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		beanFactory.registerBeanDefinition(beanName, beanDefinition);
 	}
 
+	private void processStoredProcedureHandlerParameterProcessor(DefaultListableBeanFactory beanFactory) {
+		String[] names = beanFactory.getBeanNamesForType(StoredProcedureHandlerParameterProcessor.class);
+		if (names.length > 0) {
+			return;
+		}
+		log.debug(MSG_NEW_BEAN_DEFINITION, StoredProcedureHandlerParameterProcessor.class.getSimpleName());
+		String beanName = getBeanName(StoredProcedureHandlerParameterProcessor.class);
+		String structMapperBeanName = getBeanName(beanFactory, StructMapperService.class);
+		BeanDefinition beanDefinition = BeanDefinitionBuilder // @formatter:off
+			.genericBeanDefinition(StoredProcedureHandlerParameterProcessor.class)
+			.addConstructorArgReference(structMapperBeanName)
+			.getBeanDefinition(); //@formatter:on
+		beanFactory.registerBeanDefinition(beanName, beanDefinition);
+	}
+
 	private String resolveDataSourceName(DefaultListableBeanFactory beanFactory, String customDataSourceBeanName) {
 		return StringUtils.isBlank(customDataSourceBeanName) ? getBeanName(beanFactory, DataSource.class)
 			: customDataSourceBeanName;
@@ -165,11 +182,7 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 	}
 
 	private String getBeanName(@NonNull DefaultListableBeanFactory beanFactory, @NonNull Class<?> type) {
-
 		ResolvableType rt = ResolvableType.forClass(type);
-
-		beanFactory.getBeanNamesForType(rt);
-
 		String[] names = beanFactory.getBeanNamesForType(rt);
 		if (names.length == 0) {
 			throw new OsmConnectorException("Undefined bean definition for class " + type.getName());

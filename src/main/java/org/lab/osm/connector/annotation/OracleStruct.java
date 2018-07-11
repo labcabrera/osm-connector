@@ -5,8 +5,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Annotation used to resolve Oracle name of a given java entity.
+ * 
+ * @author lab.cabrera@gmail.com
+ * @since 1.0.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -17,6 +22,6 @@ public @interface OracleStruct {
 	 * 
 	 * @return
 	 */
-	String value() default "";
+	String value() default StringUtils.EMPTY;
 
 }

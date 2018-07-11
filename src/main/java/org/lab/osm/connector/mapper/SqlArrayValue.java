@@ -10,7 +10,7 @@ import lombok.AllArgsConstructor;
 
 /**
  * 
- * <code>AbstractSqlTypeValue</code> for Oracle STRUCT objects.
+ * <code>AbstractSqlTypeValue</code> for Oracle ARRAY objects.
  * 
  * @author lab.cabrera@gmail.com
  * @since 1.0.0

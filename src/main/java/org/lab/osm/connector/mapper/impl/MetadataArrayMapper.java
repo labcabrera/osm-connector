@@ -35,6 +35,15 @@ public class MetadataArrayMapper<T> implements ArrayMapper<T> {
 	private final MappingMetadata mappingMetadata;
 	private final StructDefinitionService definitionService;
 
+	/**
+	 * Public constructor.
+	 * 
+	 * @param mappedClass
+	 * @param oracleCollectionName
+	 * @param mapperService
+	 * @param mappingMetadata
+	 * @param definitionService
+	 */
 	public MetadataArrayMapper( //@formatter:off
 			@NonNull Class<T> mappedClass,
 			@NonNull String oracleCollectionName,
@@ -48,6 +57,9 @@ public class MetadataArrayMapper<T> implements ArrayMapper<T> {
 		this.definitionService = definitionService;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.lab.osm.connector.mapper.ArrayMapper#toArray(java.util.List, java.sql.Connection)
+	 */
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ARRAY toArray(List<T> list, Connection conn) throws SQLException {
@@ -84,9 +96,11 @@ public class MetadataArrayMapper<T> implements ArrayMapper<T> {
 		}
 		ArrayDescriptor arrayDescriptor = definitionService.arrayDescriptor(oracleCollectionName, conn);
 		return new ARRAY(arrayDescriptor, conn, values);
-
 	}
 
+	/* (non-Javadoc)
+	 * @see org.lab.osm.connector.mapper.ArrayMapper#fromArray(oracle.sql.ARRAY)
+	 */
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<T> fromArray(ARRAY array) throws SQLException {

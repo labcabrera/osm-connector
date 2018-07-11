@@ -30,10 +30,21 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Spring configuration.
+ * Spring annotated-based configuration.
+ * 
+ * Registers the following beans (provided they have not been defined):
+ * <ul>
+ * <li>{@link OracleStoredProcedureAnnotationProcessor}</li>
+ * <li>{@link MetadataCollector}</li>
+ * <li>{@link StructDefinitionService}</li>
+ * <li>{@link MetadataStructMapperService}</li>
+ * <li>{@link StoredProcedureHandlerParameterProcessor}</li>
+ * </ul>
  * 
  * @author lab.cabrera@gmail.com
  * @since 1.0.0
+ * 
+ * @see EnableOsmConnector
  */
 @Configuration
 @Slf4j

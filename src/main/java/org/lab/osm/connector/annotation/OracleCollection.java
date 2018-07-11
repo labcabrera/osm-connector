@@ -8,9 +8,15 @@ import java.lang.annotation.Target;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- *
+ * Sets the name of the Oracle collection into a field list:
+ * 
+ * <pre>
+ * &#64;OracleCollection("MY_MODEL_CUSTOMERS")
+ * private List<Customer> customers;
+ * </pre>
+ * 
  * @author lab.cabrera@gmail.com
- *
+ * @since 1.0.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

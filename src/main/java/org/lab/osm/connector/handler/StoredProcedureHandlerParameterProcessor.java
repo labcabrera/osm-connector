@@ -56,21 +56,21 @@ public class StoredProcedureHandlerParameterProcessor {
 		String typeName = parameter.typeName();
 		int type = parameter.type();
 		Class<?> returnClass = parameter.returnStructClass();
-		StructMapper<?> structMapper;
+		// StructMapper<?> structMapper;
 		SqlReturnType sqlReturn;
 
 		switch (parameter.type()) {
 		case Types.STRUCT:
-			structMapper = mapperService.mapper(returnClass);
-			sqlReturn = new SqlReturnStruct(structMapper);
 			log.trace("Register output struct parameter '{}' using type '{}'", name, typeName);
+			StructMapper<?> structMapper = mapperService.mapper(returnClass);
+			sqlReturn = new SqlReturnStruct(structMapper);
 			storedProcedure.declareParameter(new SqlOutParameter(name, type, typeName, sqlReturn));
 			break;
 		case Types.ARRAY:
 			if (returnClass != null) {
-				structMapper = mapperService.mapper(returnClass);
-				sqlReturn = new SqlListStructArray(structMapper);
 				log.trace("Register output array parameter '{}' using type '{}'", name, typeName);
+				ArrayMapper<?> arrayMapper = mapperService.arrayMapper(returnClass, typeName);
+				sqlReturn = new SqlListStructArray(arrayMapper);
 				storedProcedure.declareParameter(new SqlOutParameter(name, Types.ARRAY, typeName, sqlReturn));
 			}
 			else {
@@ -97,20 +97,19 @@ public class StoredProcedureHandlerParameterProcessor {
 		String typeName = parameter.typeName();
 		int type = parameter.type();
 		Class<?> returnClass = parameter.returnStructClass();
-		StructMapper<?> structMapper;
 		SqlReturnType sqlReturn;
 		switch (parameter.type()) {
 		case Types.STRUCT:
-			structMapper = mapperService.mapper(returnClass);
-			sqlReturn = new SqlReturnStruct(structMapper);
 			log.trace("Register in-out struct parameter '{}' using type '{}'", name, typeName);
+			StructMapper<?> structMapper = mapperService.mapper(returnClass);
+			sqlReturn = new SqlReturnStruct(structMapper);
 			storedProcedure.declareParameter(new SqlInOutParameter(name, type, typeName, sqlReturn));
 			break;
 		case Types.ARRAY:
 			if (returnClass != null) {
-				structMapper = mapperService.mapper(returnClass);
-				sqlReturn = new SqlListStructArray(structMapper);
 				log.trace("Register in-out array parameter '{}' using type '{}'", name, typeName);
+				ArrayMapper<?> arrayMapper = mapperService.arrayMapper(returnClass, typeName);
+				sqlReturn = new SqlListStructArray(arrayMapper);
 				storedProcedure.declareParameter(new SqlInOutParameter(name, Types.ARRAY, typeName, sqlReturn));
 			}
 			else {
@@ -147,11 +146,9 @@ public class StoredProcedureHandlerParameterProcessor {
 			// Array conversion
 			Assert.isInstanceOf(List.class, value);
 			String oracleCollectionName = parameter.typeName();
-			List list = (List) value;
-
-			Object firstNotNull = list.stream().filter(x -> x != null).findFirst().orElseGet(null);
+			List<?> list = (List) value;
+			Object firstNotNull = list.stream().filter(x -> x != null).findFirst().orElse(null);
 			Class<?> mappedClass = firstNotNull.getClass();
-
 			ArrayMapper arrayMapper = mapperService.arrayMapper(mappedClass, oracleCollectionName);
 			inputMap.put(parameter.name(), new SqlArrayValue<>(list, arrayMapper));
 			break;

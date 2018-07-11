@@ -2,9 +2,9 @@ package org.lab.osm.connector.mapper.impl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.lab.osm.connector.exception.OsmMappingException;
 import org.lab.osm.connector.mapper.ArrayMapper;
 import org.lab.osm.connector.mapper.StructDefinitionService;
@@ -13,10 +13,19 @@ import org.lab.osm.connector.metadata.model.MappingMetadata;
 import org.lab.osm.connector.metadata.model.StructMetadata;
 import org.lab.osm.connector.service.StructMapperService;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import oracle.sql.ARRAY;
 import oracle.sql.ArrayDescriptor;
+import oracle.sql.STRUCT;
 
+/**
+ * 
+ * Default {@link ArrayMapper} using metadata information from the entity model annotations.
+ * 
+ * @author lab.cabrera@gmail.com
+ * @since 1.0.0
+ */
 @Slf4j
 public class MetadataArrayMapper<T> implements ArrayMapper<T> {
 
@@ -27,11 +36,11 @@ public class MetadataArrayMapper<T> implements ArrayMapper<T> {
 	private final StructDefinitionService definitionService;
 
 	public MetadataArrayMapper( //@formatter:off
-			Class<T> mappedClass,
-			String oracleCollectionName,
-			StructMapperService mapperService,
-			MappingMetadata mappingMetadata,
-			StructDefinitionService definitionService) { //@formatter:on
+			@NonNull Class<T> mappedClass,
+			@NonNull String oracleCollectionName,
+			@NonNull StructMapperService mapperService,
+			@NonNull MappingMetadata mappingMetadata,
+			@NonNull StructDefinitionService definitionService) { //@formatter:on
 		this.mappedClass = mappedClass;
 		this.oracleCollectionName = oracleCollectionName;
 		this.mapperService = mapperService;
@@ -79,9 +88,21 @@ public class MetadataArrayMapper<T> implements ArrayMapper<T> {
 	}
 
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<T> fromArray(ARRAY array) throws SQLException {
 		log.trace("Mapping Oracle ARRAY to java List of {}", mappedClass.getSimpleName());
-		throw new NotImplementedException("Not implemented");
+		if (array == null) {
+			return null;
+		}
+		Object[] values = (Object[]) array.getArray();
+		List<T> list = new ArrayList<>();
+		StructMapper mapper = mapperService.mapper(mappedClass);
+		for (int z = 0; z < values.length; z++) {
+			STRUCT struct = (STRUCT) values[z];
+			T p = (T) mapper.fromStruct(struct);
+			list.add(p);
+		}
+		return list;
 	}
 
 }

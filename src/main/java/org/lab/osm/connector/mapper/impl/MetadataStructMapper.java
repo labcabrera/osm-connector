@@ -1,5 +1,7 @@
 package org.lab.osm.connector.mapper.impl;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.sql.Connection;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -9,6 +11,7 @@ import java.util.Optional;
 import java.util.function.UnaryOperator;
 
 import org.apache.commons.lang3.StringUtils;
+import org.lab.osm.connector.annotation.OracleCollection;
 import org.lab.osm.connector.exception.OsmMappingException;
 import org.lab.osm.connector.mapper.ArrayMapper;
 import org.lab.osm.connector.mapper.StructDefinitionService;
@@ -27,6 +30,7 @@ import org.springframework.util.Assert;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import oracle.jdbc.OracleArray;
+import oracle.sql.ARRAY;
 import oracle.sql.STRUCT;
 import oracle.sql.StructDescriptor;
 
@@ -127,7 +131,7 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 			if (optionalMappingField.isPresent()) {
 				Object value = attributes[index];
 				FieldMetadata mappedField = optionalMappingField.get();
-				beanWrapper.setPropertyValue(mappedField.getJavaAttributeName(), value);
+				setEntityProperty(beanWrapper, mappedField.getJavaAttributeName(), value);
 			}
 			else {
 				log.warn("Missing mapping {} in class {}", columnName, mappedClass.getName());
@@ -183,5 +187,40 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 			}
 		}
 		return result;
+	}
+
+	private void setEntityProperty(BeanWrapper beanWrapper, String attributeName, Object value) {
+		if (value == null) {
+			beanWrapper.setPropertyValue(attributeName, null);
+			return;
+		}
+		try {
+			Field field = beanWrapper.getWrappedInstance().getClass().getDeclaredField(attributeName);
+			OracleCollection oracleCollection = field.getAnnotation(OracleCollection.class);
+			if (oracleCollection != null) {
+				// Internal array conversions
+				if (value != null) {
+					Assert.isInstanceOf(ARRAY.class, value);
+					String collectionName = oracleCollection.value();
+					ParameterizedType parametrizedType = (ParameterizedType) field.getGenericType();
+					Class<?> entityClass = (Class<?>) parametrizedType.getActualTypeArguments()[0];
+					ArrayMapper<?> arrayMapper = mapperService.arrayMapper(entityClass, collectionName);
+					List<?> list = arrayMapper.fromArray((ARRAY) value);
+					beanWrapper.setPropertyValue(attributeName, list);
+				}
+			}
+			else if (STRUCT.class.isAssignableFrom(value.getClass())) {
+				Class<?> entityClass = field.getType();
+				StructMapper<?> mapper = mapperService.mapper(entityClass);
+				Object result = mapper.fromStruct((STRUCT) value);
+				beanWrapper.setPropertyValue(attributeName, result);
+			}
+			else {
+				beanWrapper.setPropertyValue(attributeName, value);
+			}
+		}
+		catch (Exception ex) {
+			log.error("Cant set property value {}: {}", attributeName, value, ex);
+		}
 	}
 }

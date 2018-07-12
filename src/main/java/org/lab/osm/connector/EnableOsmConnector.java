@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Import;
  *
  * @author lab.cabrera@gmail.com
  * @since 1.0.0
+ * 
+ * @see OsmConnectorConfiguration
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

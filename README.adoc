@@ -11,7 +11,7 @@ image:https://api.codacy.com/project/badge/Grade/d2e9f91dea274cdcb58c902197b7ac3
 :storedProcedureExecutor: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/handler/StoredProcedureExecutor.java[StoredProcedureExecutor]
 :enableOsmConnector: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/EnableOsmConnector.java[@EnableOsmConnector]
 
-:linkSpringJdbc: https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html[Spring-JDBC]
+:linkSpringJdbc: https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html[Spring JDBC]
 :linkOsmCodeGenerator: https://github.com/labcabrera/osm-code-generator[OSM Code Generator]
 
 == Introducción
@@ -24,8 +24,9 @@ La librería ofrece las siguietes funcionalidades:
 * Mapeo de tipo de datos de Oracle basado en anotaciones.
 * Invocación de lógicas de negocio de Oracle a través de interfaces (similar al sistema de
   repositorios utilizado por Spring Data).
-* Generación automática de código utilizando https://github.com/labcabrera/osm-code-generator[osm-code-generator].
-* Serialización de tipos para evitar accesos innecesarios en las conversiones de los objetos del driver de Oracle.
+* Generación automática de código utilizando {linkOsmCodeGenerator}.
+* Serialización de tipos para evitar accesos innecesarios en las conversiones de los objetos del
+  driver de Oracle.
 
 == Mapeo de entidades
 
@@ -141,7 +142,7 @@ entrada definidos por el procedimiento, y como resultado revolverá un mapa con 
 parámetros de salida.
 
 
-== Configuración básica
+== Configuración del conector
 
 La forma más sencilla de configurar el conector es simplemente añadir la anotación
 {enableOsmConnector} en nuestras clases de configuración de Spring:
@@ -153,6 +154,15 @@ La forma más sencilla de configurar el conector es simplemente añadir la anota
   executorPackages = "org.lab.samples.osm.participant.executor")
 public class MyApplicationConfiguration { ... }
 ----
+
+Como alternativa a utilizar esta anotación simplementente tendremos que declarar los siguientes
+beans en nuestras clases de configuración:
+
+* `MetadataCollector`
+* `StructDefinitionService`
+* `StructMapperService`
+* `OracleStoredProcedureAnnotationProcessor`
+* `StoredProcedureHandlerParameterProcessor`
 
 == Generación automática de código
 

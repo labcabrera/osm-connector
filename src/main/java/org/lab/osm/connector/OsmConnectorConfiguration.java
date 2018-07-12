@@ -34,10 +34,10 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * Registers the following beans (provided they have not been defined):
  * <ul>
- * <li>{@link OracleStoredProcedureAnnotationProcessor}</li>
  * <li>{@link MetadataCollector}</li>
  * <li>{@link StructDefinitionService}</li>
- * <li>{@link MetadataStructMapperService}</li>
+ * <li>{@link StructMapperService}</li>
+ * <li>{@link OracleStoredProcedureAnnotationProcessor}</li>
  * <li>{@link StoredProcedureHandlerParameterProcessor}</li>
  * </ul>
  * 

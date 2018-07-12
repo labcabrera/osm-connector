@@ -4,18 +4,20 @@ image:https://travis-ci.org/labcabrera/osm-connector.svg?branch=master["Build St
 image:https://api.codacy.com/project/badge/Grade/d2e9f91dea274cdcb58c902197b7ac3f["Codacy code quality", link="https://www.codacy.com/app/lab.cabrera/osm-connector?utm_source=github.com&utm_medium=referral&utm_content=labcabrera/osm-connector&utm_campaign=Badge_Grade"]
 
 :structMapper: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/mapper/StructMapper.java[StructMapper]
-:oracleStruct: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleStruct.java[OracleStruct]
-:oracleField: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleField.java[OracleField]
-:oracleCollection: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleCollection.java[OracleCollection]
+:oracleStruct: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleStruct.java[@OracleStruct]
+:oracleField: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleField.java[@OracleField]
+:oracleCollection: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleCollection.java[@OracleCollection]
 :metadataStructMapper: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/mapper/impl/MetadataStructMapper.java[MetadataStructMapper]
 :storedProcedureExecutor: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/handler/StoredProcedureExecutor.java[StoredProcedureExecutor]
+:enableOsmConnector: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/EnableOsmConnector.java[@EnableOsmConnector]
 
-:linkSpringJdbc: 
+:linkSpringJdbc: https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html[Spring-JDBC]
+:linkOsmCodeGenerator: https://github.com/labcabrera/osm-code-generator[OSM Code Generator]
 
 == Introducción
 
 Librería que simplifica el acceso a procedimientos almacenados de Oracle utilizando
-{linkSpringJdbc}[spring-jdbc] a partir de un sistema basado en anotaciones.
+{linkSpringJdbc} a partir de un sistema basado en anotaciones.
 
 La librería ofrece las siguietes funcionalidades:
 
@@ -51,12 +53,12 @@ nos permitirán hacer las conversiones de tipos.
 Las anotaciones que utilizaremos serán:
 
 |===
-|{oracleStruct]                            | Utilizada para establecer el nombre de la entidad de Oracle en nuestra clase
-                                             java.
-|{oracleField]                             | Utilizada para establecer el nombre de un campo de una entidad de Oracle de un
-                                             modo similar al `@Column` de JPA.
-|{oracleCollection]                        | Utilizada para mapear una lista de objetos en nuestra entidad de java
-                                             representando una colección de Oracle. 
+|{oracleStruct}     | Utilizada para establecer el nombre de la entidad de Oracle en nuestra clase
+                      java.
+|{oracleField}      | Utilizada para establecer el nombre de un campo de una entidad de Oracle de
+                      un modo similar al `@Column` de JPA.
+|{oracleCollection} | Utilizada para mapear una lista de objetos en nuestra entidad de java
+                      representando una colección de Oracle. 
 |===
 
 De este modo por ejemplo tendremos:
@@ -142,8 +144,7 @@ parámetros de salida.
 == Configuración básica
 
 La forma más sencilla de configurar el conector es simplemente añadir la anotación
-https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/EnableOsmConnector.java[@EnableOsmConnector]
-en nuestras clases de configuración de Spring:
+{enableOsmConnector} en nuestras clases de configuración de Spring:
 
 [source,java]
 ----
@@ -153,13 +154,13 @@ en nuestras clases de configuración de Spring:
 public class MyApplicationConfiguration { ... }
 ----
 
-
 == Generación automática de código
 
 En lugar de generar tanto el modelo como las clases de forma manual podemos utilizar el proyecto
-https://github.com/labcabrera/osm-code-generator[osm-code-generator].
+{linkOsmCodeGenerator}.
 
 == Requisitos
 
 * JDK 8+
+* Spring Framework 4.x+
 * Oracle Driver ojdbc6

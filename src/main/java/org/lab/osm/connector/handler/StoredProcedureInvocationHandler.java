@@ -93,7 +93,7 @@ public class StoredProcedureInvocationHandler<T> implements FactoryBean<T>, Invo
 		long t0 = System.currentTimeMillis();
 		Map<String, Object> result = storedProcedure.execute(inputMap);
 		long t = System.currentTimeMillis() - t0;
-		log.trace("Execution result ({}ms): {}", t, result);
+		log.trace("Execution result ({} ms): {}", t, result);
 		return result;
 	}
 

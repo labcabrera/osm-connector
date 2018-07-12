@@ -25,6 +25,9 @@ public class DefaultStructDefinitionService implements StructDefinitionService {
 	private final Map<String, StructDescriptor> structDescriptorValues;
 	private final Map<String, ArrayDescriptor> arrayDescriptorValues;
 
+	/**
+	 * Public constructor.
+	 */
 	public DefaultStructDefinitionService() {
 		structDescriptorValues = new HashMap<>();
 		arrayDescriptorValues = new HashMap<>();
@@ -34,14 +37,14 @@ public class DefaultStructDefinitionService implements StructDefinitionService {
 	 * @see org.lab.osm.connector.mapper.StructDefinitionService#structDescriptor(java.lang.String, java.sql.Connection)
 	 */
 	@Override
-	public StructDescriptor structDescriptor(@NonNull String typeName, Connection conn) {
+	public StructDescriptor structDescriptor(@NonNull String typeName, Connection connection) {
 		try {
 			if (structDescriptorValues.containsKey(typeName)) {
 				return structDescriptorValues.get(typeName);
 			}
 			else {
-				log.info("Reading strucy {} descriptor", typeName);
-				StructDescriptor desc = new StructDescriptor(typeName, conn);
+				log.info("Reading struct {} descriptor from database", typeName);
+				StructDescriptor desc = StructDescriptor.createDescriptor(typeName, connection);
 				structDescriptorValues.put(typeName, desc);
 				return desc;
 			}
@@ -55,14 +58,14 @@ public class DefaultStructDefinitionService implements StructDefinitionService {
 	 * @see org.lab.osm.connector.mapper.StructDefinitionService#arrayDescriptor(java.lang.String, java.sql.Connection)
 	 */
 	@Override
-	public ArrayDescriptor arrayDescriptor(@NonNull String typeName, Connection conn) {
+	public ArrayDescriptor arrayDescriptor(@NonNull String typeName, Connection connection) {
 		try {
 			if (arrayDescriptorValues.containsKey(typeName)) {
 				return arrayDescriptorValues.get(typeName);
 			}
 			else {
-				log.info("Reading array {} descriptor", typeName);
-				ArrayDescriptor desc = new ArrayDescriptor(typeName, conn);
+				log.info("Reading array {} descriptor from database", typeName);
+				ArrayDescriptor desc = ArrayDescriptor.createDescriptor(typeName, connection);
 				arrayDescriptorValues.put(typeName, desc);
 				return desc;
 			}

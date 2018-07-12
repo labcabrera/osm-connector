@@ -29,7 +29,7 @@ public class SqlListStructArray<T> implements SqlReturnType {
 	 */
 	@Override
 	public Object getTypeValue(CallableStatement cs, int i, int sqlType, String typeName) throws SQLException {
-		log.trace("Binding Oracle ARRAY {} ({}) as a mapped entity list", typeName, sqlType);
+		log.trace("Binding Oracle ARRAY {} as a mapped entity list", typeName);
 		ARRAY array = (ARRAY) cs.getObject(i);
 		if (array == null) {
 			return null;

@@ -70,7 +70,6 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 	 */
 	@Override
 	public STRUCT toStruct(@NonNull T source, Connection conn) throws SQLException {
-
 		Assert.isTrue(mappedClass.equals(source.getClass()),
 			"Expected " + mappedClass.getName() + ", found " + source.getClass().getName());
 
@@ -105,12 +104,17 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 	 */
 	@Override
 	public T fromStruct(@NonNull STRUCT struct) throws SQLException {
-		log.trace("Converting struct {} to mapped class {}", struct.getSQLTypeName(), mappedClass.getName());
+		String typeName = struct.getSQLTypeName();
+		log.trace("Converting struct {} to mapped class {}", typeName, mappedClass.getName());
 
 		T mappedObject = BeanUtils.instantiateClass(mappedClass);
 		BeanWrapper beanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(mappedObject);
 
-		ResultSetMetaData rsmd = struct.getDescriptor().getMetaData();
+		long t0 = System.currentTimeMillis();
+		StructDescriptor descriptor = definitionService.structDescriptor(typeName, struct.getInternalConnection());
+		ResultSetMetaData rsmd = descriptor.getMetaData();
+		log.trace("Reading struct metadata took {} ms", System.currentTimeMillis() - t0);
+
 		int columnCount = rsmd.getColumnCount();
 		Object[] attributes = struct.getAttributes();
 

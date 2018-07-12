@@ -108,7 +108,11 @@ public class MetadataArrayMapper<T> implements ArrayMapper<T> {
 		if (array == null) {
 			return null;
 		}
+
+		long t0 = System.currentTimeMillis();
 		Object[] values = (Object[]) array.getArray();
+		log.trace("Geting array objets took {} ms", System.currentTimeMillis() - t0);
+
 		List<T> list = new ArrayList<>();
 		StructMapper mapper = mapperService.mapper(mappedClass);
 		for (int z = 0; z < values.length; z++) {

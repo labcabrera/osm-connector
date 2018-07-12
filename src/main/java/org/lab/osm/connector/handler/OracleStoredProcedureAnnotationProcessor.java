@@ -46,7 +46,7 @@ public class OracleStoredProcedureAnnotationProcessor implements BeanFactoryPost
 		Set<Class<?>> repositories = new Reflections(basePackage).getTypesAnnotatedWith(OracleStoredProcedure.class);
 		for (Class<?> clazz : repositories) {
 			String beanName = clazz.getSimpleName() + "OsmInvocationHandler";
-			log.debug("Registering handler '{}' as '{}'", clazz.getSimpleName(), beanName);
+			log.debug("Adding OSM handler '{}' as '{}'", clazz.getSimpleName(), beanName);
 
 			AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder //@formatter:off
 				.genericBeanDefinition(StoredProcedureInvocationHandler.class)

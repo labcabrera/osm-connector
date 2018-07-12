@@ -67,7 +67,7 @@ public class SerializedStructDefinitionService implements StructDefinitionServic
 	 * @see org.lab.osm.connector.mapper.StructDefinitionService#structDescriptor(java.lang.String, java.sql.Connection)
 	 */
 	@Override
-	public StructDescriptor structDescriptor(@NonNull String typeName, Connection conn) {
+	public StructDescriptor structDescriptor(@NonNull String typeName, Connection connection) {
 		try {
 			if (structDescriptorValues.containsKey(typeName)) {
 				// TODO check reusing connections
@@ -76,17 +76,17 @@ public class SerializedStructDefinitionService implements StructDefinitionServic
 			StructDescriptor structDescriptor;
 			File file = getSerializedFile(typeName);
 			if (file.exists()) {
-				log.info("Reading strucy {} descriptor from file", typeName);
+				log.info("Reading struct {} descriptor from file", typeName);
 				try (FileInputStream fileInputStream = new FileInputStream(file)) {
 					ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
 					structDescriptor = (StructDescriptor) objectInputStream.readObject();
 					objectInputStream.close();
 				}
-				structDescriptor.setConnection(conn);
+				structDescriptor.setConnection(connection);
 			}
 			else {
-				log.info("Reading strucy {} descriptor from database", typeName);
-				structDescriptor = new StructDescriptor(typeName, conn);
+				log.info("Reading struct {} descriptor from database", typeName);
+				structDescriptor = StructDescriptor.createDescriptor(typeName, connection);
 				try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
 					ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
 					objectOutputStream.writeObject(structDescriptor);
@@ -105,7 +105,7 @@ public class SerializedStructDefinitionService implements StructDefinitionServic
 	 * @see org.lab.osm.connector.mapper.StructDefinitionService#arrayDescriptor(java.lang.String, java.sql.Connection)
 	 */
 	@Override
-	public ArrayDescriptor arrayDescriptor(@NonNull String typeName, Connection conn) {
+	public ArrayDescriptor arrayDescriptor(@NonNull String typeName, Connection connection) {
 		try {
 			if (arrayDescriptorValues.containsKey(typeName)) {
 				// TODO check reusing connections
@@ -120,11 +120,11 @@ public class SerializedStructDefinitionService implements StructDefinitionServic
 					arrayDescriptor = (ArrayDescriptor) objectInputStream.readObject();
 					objectInputStream.close();
 				}
-				arrayDescriptor.setConnection(conn);
+				arrayDescriptor.setConnection(connection);
 			}
 			else {
 				log.info("Reading array {} descriptor from database", typeName);
-				arrayDescriptor = new ArrayDescriptor(typeName, conn);
+				arrayDescriptor = ArrayDescriptor.createDescriptor(typeName, connection);
 				try (FileOutputStream fileOutStream = new FileOutputStream(file)) {
 					ObjectOutputStream objectOutStream = new ObjectOutputStream(fileOutStream);
 					objectOutStream.writeObject(arrayDescriptor);

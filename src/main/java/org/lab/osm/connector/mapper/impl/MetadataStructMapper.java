@@ -113,7 +113,10 @@ public class MetadataStructMapper<T> implements StructMapper<T> {
 		long t0 = System.currentTimeMillis();
 		StructDescriptor descriptor = definitionService.structDescriptor(typeName, struct.getInternalConnection());
 		ResultSetMetaData rsmd = descriptor.getMetaData();
-		log.trace("Reading struct metadata took {} ms", System.currentTimeMillis() - t0);
+		long t = System.currentTimeMillis() - t0;
+		if (t > 0) {
+			log.trace("Reading struct metadata took {} ms", t);
+		}
 
 		int columnCount = rsmd.getColumnCount();
 		Object[] attributes = struct.getAttributes();

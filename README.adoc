@@ -1,17 +1,21 @@
-:linkOracleStruct: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleStruct.java
-:linkOracleField: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleField.java
-:linkOracleCollection: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleCollection.java
-
 = Oracle Struct Metadata Connector
 
 image:https://travis-ci.org/labcabrera/osm-connector.svg?branch=master["Build Status", link="https://travis-ci.org/labcabrera/osm-connector"]
 image:https://api.codacy.com/project/badge/Grade/d2e9f91dea274cdcb58c902197b7ac3f["Codacy code quality", link="https://www.codacy.com/app/lab.cabrera/osm-connector?utm_source=github.com&utm_medium=referral&utm_content=labcabrera/osm-connector&utm_campaign=Badge_Grade"]
 
+:structMapper: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/mapper/StructMapper.java[StructMapper]
+:oracleStruct: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleStruct.java[OracleStruct]
+:oracleField: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleField.java[OracleField]
+:oracleCollection: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleCollection.java[OracleCollection]
+:metadataStructMapper: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/mapper/impl/MetadataStructMapper.java[MetadataStructMapper]
+:storedProcedureExecutor: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/handler/StoredProcedureExecutor.java[StoredProcedureExecutor]
+
+:linkSpringJdbc: 
+
 == Introducción
 
 Librería que simplifica el acceso a procedimientos almacenados de Oracle utilizando
-https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html[spring-jdbc]
-a partir de un sistema basado en anotaciones.
+{linkSpringJdbc}[spring-jdbc] a partir de un sistema basado en anotaciones.
 
 La librería ofrece las siguietes funcionalidades:
 
@@ -23,7 +27,7 @@ La librería ofrece las siguietes funcionalidades:
 
 == Mapeo de entidades
 
-La librería define la interface `StructMapper` que es la que se encargará de realizar las
+La librería define la interface {structMapper} que es la que se encargará de realizar las
 transformaciones de nuestras entidades de Java a objetos de Oracle. La definición es muy sencilla:
 
 [source,java]
@@ -36,9 +40,8 @@ public interface StructMapper<T> {
 }
 ----
 
-Esta interface está implementada por la clase 
-https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/mapper/MetadataStructMapper.java[MetadataStructMapper]
-que utiliza un metamodelo basado en anotaciones para hacer las conversiones de tipos.
+Esta interface está implementada por la clase {structMapper} que utiliza un metamodelo basado en
+anotaciones similar a JPA para hacer las conversiones de tipos.
 
 === Definición del modelo
 
@@ -48,11 +51,11 @@ nos permitirán hacer las conversiones de tipos.
 Las anotaciones que utilizaremos serán:
 
 |===
-|{linkOracleStruct}[@OracleStruct]         | Utilizada para establecer el nombre de la entidad de Oracle en nuestra clase
+|{oracleStruct]                            | Utilizada para establecer el nombre de la entidad de Oracle en nuestra clase
                                              java.
-|{linkOracleField}[@OracleField]           | Utilizada para establecer el nombre de un campo de una entidad de Oracle de un
+|{oracleField]                             | Utilizada para establecer el nombre de un campo de una entidad de Oracle de un
                                              modo similar al `@Column` de JPA.
-|{linkOracleCollection}[@OracleCollection] | Utilizada para mapear una lista de objetos en nuestra entidad de java
+|{oracleCollection]                        | Utilizada para mapear una lista de objetos en nuestra entidad de java
                                              representando una colección de Oracle. 
 |===
 
@@ -83,17 +86,15 @@ Tenemos dos opciones:
 
 * Utilizar el sistema basado en interfaces similar al funcionamiento de `JpaRepository` de Spring
   Framework.
-* Extender el objeto `org.springframework.jdbc.object.StoredProcedure` utilizando la funcionalidad
-  de `StructMapper` para la conversión de tipos.
+* Extender el objeto `org.springframework.jdbc.object.StoredProcedure` utilizando la
+  funcionalidad de {structMapper} para la conversión de tipos.
 
 === Utilizando interfaces
 
-En primer lugar deberemos declarar nuestra interface extendiendo de
-https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/handler/StoredProcedureExecutor.java[StoredProcedureExecutor].
+En primer lugar deberemos declarar nuestra interface extendiendo de {storedProcedureExecutor}.
 
-Nuestra interface deberá tener la anotación
-https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleStoredProcedure.java[@OracleStoredProcedure]
-que será la encargada de establecer tanto el nombre del procedimiento o función como los argumentos de entrada salida.
+Nuestra interface deberá tener la anotación {oracleStoredProcedure} que será la encargada de
+establecer tanto el nombre del procedimiento o función como los argumentos de entrada salida.
 
 Por ejemplo para invocar a una función de Oracle que recibe como parámetro de entrada un objeto de
 tipo _ORACLE_CUSTOMER_MODEL_ y devuelve una lista de objetos del mismo tipo simplemente tendremos

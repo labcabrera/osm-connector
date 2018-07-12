@@ -4,6 +4,7 @@ image:https://travis-ci.org/labcabrera/osm-connector.svg?branch=master["Build St
 image:https://api.codacy.com/project/badge/Grade/d2e9f91dea274cdcb58c902197b7ac3f["Codacy code quality", link="https://www.codacy.com/app/lab.cabrera/osm-connector?utm_source=github.com&utm_medium=referral&utm_content=labcabrera/osm-connector&utm_campaign=Badge_Grade"]
 
 :structMapper: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/mapper/StructMapper.java[StructMapper]
+:arrayMapper: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/mapper/ArrayMapper.java[ArrayMapper]
 :oracleStruct: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleStruct.java[@OracleStruct]
 :oracleField: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleField.java[@OracleField]
 :oracleCollection: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleCollection.java[@OracleCollection]
@@ -45,6 +46,9 @@ public interface StructMapper<T> {
 
 Esta interface está implementada por la clase {structMapper} que utiliza un metamodelo basado en
 anotaciones similar a JPA para hacer las conversiones de tipos.
+
+Para el tratamiento de colecciones existe la interface equivalente {arrayMapper} encargada de
+las conversiones del objeto _ARRAY_ del driver de Oracle a listas de entidades.
 
 === Definición del modelo
 

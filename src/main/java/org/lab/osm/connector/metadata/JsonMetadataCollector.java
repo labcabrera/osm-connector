@@ -40,7 +40,7 @@ public class JsonMetadataCollector extends DefaultMetadataCollector {
 		}
 		else {
 			super.readMetadata(metadata, packageName);
-			writeMetadataToFile(metadata, packageName, file);
+			writeMetadataToFile(metadata, file);
 		}
 	}
 
@@ -59,7 +59,7 @@ public class JsonMetadataCollector extends DefaultMetadataCollector {
 		}
 	}
 
-	private void writeMetadataToFile(MappingMetadata metadata, String packageName, File file) {
+	private void writeMetadataToFile(MappingMetadata metadata, File file) {
 		try {
 			objectMapper.writeValue(file, metadata);
 		}

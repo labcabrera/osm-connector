@@ -1,9 +1,5 @@
 package org.lab.osm.connector.service;
 
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
-
 import org.lab.osm.connector.mapper.ArrayMapper;
 import org.lab.osm.connector.mapper.StructDefinitionService;
 import org.lab.osm.connector.mapper.StructMapper;
@@ -30,16 +26,15 @@ public class MetadataStructMapperService implements StructMapperService {
 
 	/**
 	 * Public constructor.
-	 * @param dataSource
+	 * 
 	 * @param definitionService
-	 * @param packageName
-	 * @throws SQLException
+	 * @param metadataCollector
+	 * @param packageNames
 	 */
 	public MetadataStructMapperService( //@formatter:off
-			DataSource dataSource,
 			StructDefinitionService definitionService,
 			MetadataCollector metadataCollector,
-			String[] packageNames) throws SQLException { //@formatter:on
+			String[] packageNames) { //@formatter:on
 		this.metadata = new MappingMetadata();
 		this.definitionService = definitionService;
 		for (String packageName : packageNames) {

@@ -73,7 +73,7 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		processOracleRepositoryAnnotationProcessor(beanFactory, executorPackages);
 		processMetadataCollector(beanFactory, dataBaseName, serializationFolder, serializationPrefix);
 		processStructDefinitionService(beanFactory, serializationFolder, serializationPrefix);
-		processMetadataStructMapperService(beanFactory, modelPackages, dataBaseName);
+		processMetadataStructMapperService(beanFactory, modelPackages);
 		processStoredProcedureHandlerParameterProcessor(beanFactory);
 	}
 
@@ -121,22 +121,17 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		beanFactory.registerBeanDefinition(beanName, beanDefinition);
 	}
 
-	private void processMetadataStructMapperService(DefaultListableBeanFactory beanFactory, String[] modelPackages,
-		String customDataSourceBeanName) {
+	private void processMetadataStructMapperService(DefaultListableBeanFactory beanFactory, String[] modelPackages) {
 		String[] names = beanFactory.getBeanNamesForType(StructMapperService.class);
 		if (names.length > 0) {
 			return;
 		}
 		log.debug(MSG_NEW_BEAN_DEFINITION, StructMapperService.class.getSimpleName());
-
 		String definitionServiceBeanName = getBeanName(beanFactory, StructDefinitionService.class);
 		String metadataCollectorBeanName = getBeanName(beanFactory, MetadataCollector.class);
-		String dataSourceBeanName = resolveDataSourceName(beanFactory, customDataSourceBeanName);
 		String beanName = getBeanName(MetadataStructMapperService.class);
-
 		BeanDefinition beanDef = BeanDefinitionBuilder // @formatter:off
 			.genericBeanDefinition(MetadataStructMapperService.class)
-			.addConstructorArgReference(dataSourceBeanName)
 			.addConstructorArgReference(definitionServiceBeanName)
 			.addConstructorArgReference(metadataCollectorBeanName)
 			.addConstructorArgValue(modelPackages)

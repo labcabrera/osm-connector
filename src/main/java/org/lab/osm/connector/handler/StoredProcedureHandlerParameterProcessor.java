@@ -9,13 +9,13 @@ import java.util.Map;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.lab.osm.connector.annotation.OracleParameter;
+import org.lab.osm.connector.handler.args.SqlArrayValue;
+import org.lab.osm.connector.handler.args.SqlListStructArray;
+import org.lab.osm.connector.handler.args.SqlReturnStruct;
+import org.lab.osm.connector.handler.args.SqlStructValue;
 import org.lab.osm.connector.mapper.ArrayMapper;
-import org.lab.osm.connector.mapper.SqlArrayValue;
-import org.lab.osm.connector.mapper.SqlStructValue;
 import org.lab.osm.connector.mapper.StructMapper;
-import org.lab.osm.connector.mapper.results.SqlListStructArray;
-import org.lab.osm.connector.mapper.results.SqlReturnStruct;
-import org.lab.osm.connector.service.StructMapperService;
+import org.lab.osm.connector.mapper.StructMapperService;
 import org.springframework.jdbc.core.SqlInOutParameter;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
@@ -27,6 +27,8 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * Component used to register parameters on a given Spring <code>StoredProcedure</code>.
+ * 
  * @author lab.cabrera@gmail.com
  * @since 1.0.0
  */
@@ -35,10 +37,23 @@ public class StoredProcedureHandlerParameterProcessor {
 
 	private final StructMapperService mapperService;
 
+	/**
+	 * Public constructor.
+	 * 
+	 * @param mapperService
+	 */
 	public StoredProcedureHandlerParameterProcessor(@NonNull StructMapperService mapperService) {
 		this.mapperService = mapperService;
 	}
 
+	/**
+	 * Declares an input parameter in the given procedure.
+	 * 
+	 * @param storedProcedure
+	 * @param parameter
+	 * @param inputMap
+	 * @param value
+	 */
 	public void registerInputParameter(StoredProcedure storedProcedure, OracleParameter parameter,
 		Map<String, Object> inputMap, Object value) {
 		int type = parameter.type();
@@ -50,6 +65,12 @@ public class StoredProcedureHandlerParameterProcessor {
 		addToInputMap(parameter, inputMap, value);
 	}
 
+	/**
+	 * Declares an output parameter in the given procedure.
+	 * 
+	 * @param storedProcedure
+	 * @param parameter
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void registerOutputParameter(StoredProcedure storedProcedure, OracleParameter parameter) {
 		String name = parameter.name();
@@ -90,6 +111,14 @@ public class StoredProcedureHandlerParameterProcessor {
 		}
 	}
 
+	/**
+	 * Declares an in-out parameter in the given procedure.
+	 * 
+	 * @param storedProcedure
+	 * @param parameter
+	 * @param inputMap
+	 * @param value
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void registerInOutParameter(StoredProcedure storedProcedure, OracleParameter parameter,
 		Map<String, Object> inputMap, Object value) {

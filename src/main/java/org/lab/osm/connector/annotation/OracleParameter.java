@@ -5,6 +5,12 @@ import java.lang.annotation.RetentionPolicy;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Oracle Stored procedure / function parameter definition.
+ * 
+ * @author lab.cabrera@gmail.com
+ * @since 1.0.0
+ */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OracleParameter {
 

@@ -9,9 +9,9 @@ import org.lab.osm.connector.exception.OsmMappingException;
 import org.lab.osm.connector.mapper.ArrayMapper;
 import org.lab.osm.connector.mapper.StructDefinitionService;
 import org.lab.osm.connector.mapper.StructMapper;
+import org.lab.osm.connector.mapper.StructMapperService;
 import org.lab.osm.connector.metadata.model.MappingMetadata;
 import org.lab.osm.connector.metadata.model.StructMetadata;
-import org.lab.osm.connector.service.StructMapperService;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;

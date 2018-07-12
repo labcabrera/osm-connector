@@ -1,4 +1,4 @@
-package org.lab.osm.connector.metadata;
+package org.lab.osm.connector.metadata.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,18 +12,34 @@ import org.lab.osm.connector.metadata.model.StructMetadata;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * {@link org.lab.osm.connector.metadata.MetadataCollector} reading information from a JSON file. If file is not present
+ * it will be generated after read the model entities.
+ * 
+ * @author lab.cabrera@gmail.com
+ * @since 1.0.0
+ */
 public class JsonMetadataCollector extends DefaultMetadataCollector {
 
 	private final File folder;
 	private final String filePrefix;
 	private final ObjectMapper objectMapper;
 
+	/**
+	 * Public constructor.
+	 * 
+	 * @param dataSource
+	 * @param objectMapper
+	 * @param jsonFolder
+	 * @param filePrefix
+	 */
 	public JsonMetadataCollector(DataSource dataSource, ObjectMapper objectMapper, String jsonFolder,
 		String filePrefix) {
 		super(dataSource);
 		this.folder = new File(jsonFolder);
 		this.filePrefix = filePrefix;
 		this.objectMapper = objectMapper;
+
 		if (!folder.exists() && !folder.mkdirs()) {
 			throw new OsmConnectorException("Can not create folder " + folder.getAbsolutePath());
 		}
@@ -32,6 +48,9 @@ public class JsonMetadataCollector extends DefaultMetadataCollector {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.lab.osm.connector.metadata.DefaultMetadataCollector#readMetadata(org.lab.osm.connector.metadata.model.MappingMetadata, java.lang.String)
+	 */
 	@Override
 	public void readMetadata(MappingMetadata metadata, String packageName) {
 		File file = getJsonFile(packageName);

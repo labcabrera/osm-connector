@@ -1,4 +1,4 @@
-package org.lab.osm.connector.metadata;
+package org.lab.osm.connector.metadata.impl;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -15,6 +15,7 @@ import org.lab.osm.connector.annotation.OracleField;
 import org.lab.osm.connector.annotation.OracleStruct;
 import org.lab.osm.connector.exception.OsmConnectorException;
 import org.lab.osm.connector.exception.OsmMappingException;
+import org.lab.osm.connector.metadata.MetadataCollector;
 import org.lab.osm.connector.metadata.model.FieldMetadata;
 import org.lab.osm.connector.metadata.model.MappingMetadata;
 import org.lab.osm.connector.metadata.model.StructMetadata;
@@ -23,16 +24,33 @@ import org.reflections.Reflections;
 import lombok.extern.slf4j.Slf4j;
 import oracle.sql.StructDescriptor;
 
+/**
+ * Default {@link MetadataCollector} implementation.
+ * 
+ * Reads all entities annotated with {@link OracleStruct} for a given packages and obtains from the database the
+ * information necessary for your conversion
+ * 
+ * @author lab.cabrera@gmail.com
+ * @since 1.0.0
+ */
 @Slf4j
 public class DefaultMetadataCollector implements MetadataCollector {
 
 	private final DataSource dataSource;
 	private final UnaryOperator<String> nameNormalizer = x -> x.toUpperCase().replaceAll("_", "");
 
+	/**
+	 * Public constructor.
+	 * 
+	 * @param dataSource
+	 */
 	public DefaultMetadataCollector(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.lab.osm.connector.metadata.MetadataCollector#readMetadata(org.lab.osm.connector.metadata.model.MappingMetadata, java.lang.String)
+	 */
 	public void readMetadata(MappingMetadata metadata, String packageName) {
 		try (Connection connection = dataSource.getConnection()) {
 			readMetadata(metadata, packageName, connection);
@@ -83,7 +101,6 @@ public class DefaultMetadataCollector implements MetadataCollector {
 	}
 
 	private void mapReflectionFields(StructMetadata data, Class<?> structClass) {
-
 		for (Field field : structClass.getDeclaredFields()) {
 
 			// Skip static fields

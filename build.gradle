@@ -7,7 +7,7 @@ buildscript {
     slf4jVersion           = '1.7.25'
     lombokVersion          = '1.16.22'
     jacksonVersion         = '2.9.6'
-    useProxy = false	
+    useProxy = false
   }
   repositories {
     if(useProxy) {

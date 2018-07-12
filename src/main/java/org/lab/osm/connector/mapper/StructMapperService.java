@@ -1,7 +1,4 @@
-package org.lab.osm.connector.service;
-
-import org.lab.osm.connector.mapper.ArrayMapper;
-import org.lab.osm.connector.mapper.StructMapper;
+package org.lab.osm.connector.mapper;
 
 /**
  * Interface used to obtain the StructMapper associated with a given entity.

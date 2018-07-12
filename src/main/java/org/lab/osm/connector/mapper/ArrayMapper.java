@@ -18,7 +18,21 @@ import oracle.sql.ARRAY;
  */
 public interface ArrayMapper<T> {
 
+	/**
+	 * Converts a list of model entities to an Oracle ARRAY object.
+	 * 
+	 * @param source
+	 * @param connection
+	 * @return
+	 * @throws SQLException
+	 */
 	ARRAY toArray(List<T> source, Connection connection) throws SQLException;
 
+	/**
+	 * Converts an Oracle ARRAY object to a list of model entities.
+	 * @param array
+	 * @return
+	 * @throws SQLException
+	 */
 	List<T> fromArray(ARRAY array) throws SQLException;
 }

@@ -1,8 +1,9 @@
-package org.lab.osm.connector.mapper;
+package org.lab.osm.connector.handler.args;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.lab.osm.connector.mapper.StructMapper;
 import org.springframework.jdbc.core.support.AbstractSqlTypeValue;
 
 import lombok.AllArgsConstructor;

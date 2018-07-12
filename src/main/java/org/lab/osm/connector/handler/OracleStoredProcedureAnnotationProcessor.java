@@ -16,7 +16,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <code>BeanFactoryPostProcessor</code> to register {@linl StoredProcedureInvocationHandler} from a given sets of base
+ * <code>BeanFactoryPostProcessor</code> to register {@link StoredProcedureInvocationHandler} from a given sets of base
  * packages.
  *
  * @author lab.cabrera@gmail.com

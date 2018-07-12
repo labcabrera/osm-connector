@@ -1,10 +1,9 @@
-package org.lab.osm.connector.service;
+package org.lab.osm.connector.mapper.impl;
 
 import org.lab.osm.connector.mapper.ArrayMapper;
 import org.lab.osm.connector.mapper.StructDefinitionService;
 import org.lab.osm.connector.mapper.StructMapper;
-import org.lab.osm.connector.mapper.impl.MetadataArrayMapper;
-import org.lab.osm.connector.mapper.impl.MetadataStructMapper;
+import org.lab.osm.connector.mapper.StructMapperService;
 import org.lab.osm.connector.metadata.MetadataCollector;
 import org.lab.osm.connector.metadata.model.MappingMetadata;
 

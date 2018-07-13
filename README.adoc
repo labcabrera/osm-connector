@@ -10,6 +10,7 @@ image:https://api.codacy.com/project/badge/Grade/d2e9f91dea274cdcb58c902197b7ac3
 :oracleStruct: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleStruct.java[@OracleStruct]
 :oracleField: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleField.java[@OracleField]
 :oracleCollection: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleCollection.java[@OracleCollection]
+:oracleStoredProcedure: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleStoredProcedure.java[OracleStoredProcedure]
 :metadataStructMapper: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/mapper/impl/MetadataStructMapper.java[MetadataStructMapper]
 :storedProcedureExecutor: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/handler/StoredProcedureExecutor.java[StoredProcedureExecutor]
 :enableOsmConnector: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/EnableOsmConnector.java[@EnableOsmConnector]
@@ -104,6 +105,7 @@ En primer lugar deberemos declarar nuestra interface extendiendo de {storedProce
 
 Nuestra interface deberá tener la anotación {oracleStoredProcedure} que será la encargada de
 establecer tanto el nombre del procedimiento o función como los argumentos de entrada salida.
+*Necesitaremos una interface por cada procedimiento almacenado o función* que tengamos que invocar.
 
 Por ejemplo para invocar a una función de Oracle que recibe como parámetro de entrada un objeto de
 tipo _ORACLE_CUSTOMER_MODEL_ y devuelve una lista de objetos del mismo tipo simplemente tendremos

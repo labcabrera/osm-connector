@@ -98,7 +98,7 @@ Tenemos dos opciones:
 * Extender el objeto `org.springframework.jdbc.object.StoredProcedure` utilizando la
   funcionalidad de {structMapper} para la conversión de tipos.
 
-=== Utilizando interfaces
+=== Utilizando el conector a través de interfaces
 
 En primer lugar deberemos declarar nuestra interface extendiendo de {storedProcedureExecutor}.
 
@@ -209,8 +209,8 @@ nombres de los ficheros:
 [source,java]
 ----
 @EnableOsmConnector(
-  modelPackages = "org.lab.samples.osm.tron.model",
-  executorPackages = "org.lab.samples.osm.tron.contract",
+  modelPackages = "org.lab.samples.myapp.model",
+  executorPackages = "org.lab.samples.myapp.executors",
   serializationFolder= "/opt/osm-connector",
   serializationPrefix = "my-application")
 @Configuration

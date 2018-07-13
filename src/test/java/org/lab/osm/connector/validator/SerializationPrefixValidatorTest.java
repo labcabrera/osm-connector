@@ -7,37 +7,37 @@ import org.junit.Test;
 public class SerializationPrefixValidatorTest {
 
 	@Test
-	public void test_empty_ok_01() {
+	public void testNullOk01() {
 		Assert.assertTrue(new SerializationPrefixValidator().apply(null));
 	}
 
 	@Test
-	public void test_empty_ok_02() {
+	public void testNullOk02() {
 		Assert.assertTrue(new SerializationPrefixValidator().apply(StringUtils.EMPTY));
 	}
 
 	@Test
-	public void test_ok_01() {
+	public void testOk01() {
 		Assert.assertTrue(new SerializationPrefixValidator().apply("test"));
 	}
 
 	@Test
-	public void test_ok_02() {
+	public void testOk02() {
 		Assert.assertTrue(new SerializationPrefixValidator().apply("test-x"));
 	}
 
 	@Test
-	public void test_ok_03() {
+	public void testOk03() {
 		Assert.assertTrue(new SerializationPrefixValidator().apply("test-x-"));
 	}
 
 	@Test
-	public void test_ko_01() {
+	public void testKo01() {
 		Assert.assertFalse(new SerializationPrefixValidator().apply("test/invalid"));
 	}
 
 	@Test
-	public void test_ko_02() {
+	public void testKo02() {
 		Assert.assertFalse(new SerializationPrefixValidator().apply("test:invalid"));
 	}
 

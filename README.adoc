@@ -3,6 +3,8 @@
 image:https://travis-ci.org/labcabrera/osm-connector.svg?branch=master["Build Status", link="https://travis-ci.org/labcabrera/osm-connector"]
 image:https://api.codacy.com/project/badge/Grade/d2e9f91dea274cdcb58c902197b7ac3f["Codacy code quality", link="https://www.codacy.com/app/lab.cabrera/osm-connector?utm_source=github.com&utm_medium=referral&utm_content=labcabrera/osm-connector&utm_campaign=Badge_Grade"]
 
+:important-caption: :heavy_exclamation_mark:
+
 :structMapper: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/mapper/StructMapper.java[StructMapper]
 :arrayMapper: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/mapper/ArrayMapper.java[ArrayMapper]
 :oracleStruct: https://github.com/labcabrera/osm-connector/blob/master/src/main/java/org/lab/osm/connector/annotation/OracleStruct.java[@OracleStruct]
@@ -38,9 +40,9 @@ transformaciones de nuestras entidades de Java a objetos de Oracle. La definici�
 ----
 public interface StructMapper<T> {
 
-	STRUCT toStruct(T source, Connection conn) throws SQLException;
+  STRUCT toStruct(T source, Connection conn) throws SQLException;
 
-	T fromStruct(STRUCT struct) throws SQLException;
+  T fromStruct(STRUCT struct) throws SQLException;
 }
 ----
 
@@ -75,10 +77,10 @@ public class Customer {
 
   @OracleField("ORACLE_MODEL_ID")
   private Long id;
-  
+
   @OracleField("ORACLE_MODEL_NAME")
   private String name;
-    
+
   @OracleCollection("ORACLE_MODEL_PRODUCT_LIST")
   private List<Product> products;
 
@@ -125,7 +127,7 @@ que declarar la interface:
       type = Types.STRUCT,
       mode = ParameterType.IN)
     })
-public interface CustomerReaderExecutor extends StoredProcedureExecutor {
+public interface MyCustomerReaderExecutor extends StoredProcedureExecutor {
 }
 ----
 
@@ -136,7 +138,7 @@ utilizaremos para invocar a nuestro procedimiento almacenado de acuerdo a:
 ----
 public interface StoredProcedureExecutor {
 
-	Map<String, Object> execute(Object... args);
+  Map<String, Object> execute(Object... args);
 
 }
 ----
@@ -145,6 +147,22 @@ Los argumentos de entrada serán un array de objetos que deberá coincidir con l
 entrada definidos por el procedimiento, y como resultado revolverá un mapa con los diferentes
 parámetros de salida.
 
+Después en nuestro servicio simplemente inyectaremos la interface que hemos creado anteriormente y
+la invocaremos normalmente:
+
+[source,java]
+----
+@Service
+public class MyCustomerService {
+
+  @Autowired
+  private MyCustomerReaderExecutor executor;
+
+  public List<Customer> read(Customer example) {
+    return executor.execute(example).entrySet().iterator().next().getValue();
+  }
+}
+----
 
 == Configuración del conector
 
@@ -167,6 +185,41 @@ beans en nuestras clases de configuración:
 * `StructMapperService`
 * `OracleStoredProcedureAnnotationProcessor`
 * `StoredProcedureHandlerParameterProcessor`
+
+== Optimizaciones
+
+En el caso de trabajar con entidades complejas con gran niveles de anidamiento es la lectura del
+modelo de Oracle puede generar una degradación del rendimiento.
+
+Por un lado en la lectura inicial que realiza los mapeos entre el modelo de Oracle y nuestro modelo
+de entidades.
+Por otro lado a la hora de obtener los _StructDescriptors_ y _ArrayDescriptors_ del driver de
+Oracle.
+
+Para solucionar estos problemas el conector permite la opción de serializar esta información de tal
+modo que no necesite consultarla directamente a Oracle.
+
+Actualmente se puede definir una carpeta para la serialización tanto del JSON que recupera el
+_MetadataCollector_ como los ficheros que definen la estructura de los objetos _SRUCT/ARRAY_.
+
+La forma más sencilla de configurar este comportamiento es incluir la carpeta donde queremos que se
+generen los ficheros. Opcionalmente podremos definir un prefijo que utilizará para generar los
+nombres de los ficheros:
+
+[source,java]
+----
+@EnableOsmConnector(
+  modelPackages = "org.lab.samples.osm.tron.model",
+  executorPackages = "org.lab.samples.osm.tron.contract",
+  serializationFolder= "/opt/osm-connector",
+  serializationPrefix = "my-application")
+@Configuration
+public class MyApplicationConfiguration { ... }
+----
+
+IMPORTANT: Recordar que si la estructura del las entidades cambia tanto en Oracle como en Java
+sería necesario invalidar todos estos ficheros y volver a generarlos.
+
 
 == Generación automática de código
 

@@ -3,6 +3,8 @@ package org.lab.osm.connector.validator;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Package validator.
  * 
@@ -18,7 +20,7 @@ public class PackageNameValidator implements Function<String, Boolean> {
 	 */
 	@Override
 	public Boolean apply(String packageName) {
-		return Pattern.compile(EXP).matcher(packageName).matches();
+		return StringUtils.isBlank(packageName) ? false : Pattern.compile(EXP).matcher(packageName).matches();
 	}
 
 }

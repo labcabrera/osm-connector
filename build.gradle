@@ -7,6 +7,7 @@ buildscript {
     slf4jVersion           = '1.7.25'
     lombokVersion          = '1.16.22'
     jacksonVersion         = '2.9.6'
+    junitVersion           = '4.12'
     useProxy = false
   }
   repositories {
@@ -50,4 +51,5 @@ dependencies {
   compileOnly("org.slf4j:slf4j-api:${slf4jVersion}")
 
   testCompile("org.springframework:spring-test:${springVersion}")
+  testCompile("junit:junit:${junitVersion}")
 }

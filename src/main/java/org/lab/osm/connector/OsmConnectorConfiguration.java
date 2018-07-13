@@ -14,6 +14,7 @@ import org.lab.osm.connector.mapper.impl.SerializedStructDefinitionService;
 import org.lab.osm.connector.metadata.MetadataCollector;
 import org.lab.osm.connector.metadata.impl.DefaultMetadataCollector;
 import org.lab.osm.connector.metadata.impl.JsonMetadataCollector;
+import org.lab.osm.connector.metadata.validator.PackageNameValidator;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -65,6 +66,13 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		String dataBaseName = attributes.getString("dataBaseName");
 		String serializationFolder = attributes.getString("serializationFolder");
 		String serializationPrefix = attributes.getString("serializationPrefix");
+
+		PackageNameValidator packageValidator = new PackageNameValidator();
+		for (String packageName : modelPackages) {
+			if (!packageValidator.apply(packageName)) {
+				throw new OsmConnectorException("Invalid package name: " + packageName);
+			}
+		}
 
 		log.info("Configuring OSM connector. Model packages {}, procedure packages: {}", modelPackages,
 			executorPackages);

@@ -1,7 +1,8 @@
-package org.lab.osm.connector.metadata.validator;
+package org.lab.osm.connector.validator;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.lab.osm.connector.validator.PackageNameValidator;
 
 public class PackageNameValidatorTest {
 

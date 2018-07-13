@@ -1,4 +1,4 @@
-package org.lab.osm.connector.metadata.validator;
+package org.lab.osm.connector.validator;
 
 import java.util.function.Function;
 import java.util.regex.Pattern;

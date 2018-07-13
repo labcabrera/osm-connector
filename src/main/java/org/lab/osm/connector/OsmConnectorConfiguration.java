@@ -1,5 +1,9 @@
 package org.lab.osm.connector;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +18,8 @@ import org.lab.osm.connector.mapper.impl.SerializedStructDefinitionService;
 import org.lab.osm.connector.metadata.MetadataCollector;
 import org.lab.osm.connector.metadata.impl.DefaultMetadataCollector;
 import org.lab.osm.connector.metadata.impl.JsonMetadataCollector;
-import org.lab.osm.connector.metadata.validator.PackageNameValidator;
+import org.lab.osm.connector.validator.PackageNameValidator;
+import org.lab.osm.connector.validator.SerializationPrefixValidator;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -67,12 +72,7 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 		String serializationFolder = attributes.getString("serializationFolder");
 		String serializationPrefix = attributes.getString("serializationPrefix");
 
-		PackageNameValidator packageValidator = new PackageNameValidator();
-		for (String packageName : modelPackages) {
-			if (!packageValidator.apply(packageName)) {
-				throw new OsmConnectorException("Invalid package name: " + packageName);
-			}
-		}
+		validateConfiguration(modelPackages, executorPackages, serializationFolder, serializationPrefix);
 
 		log.info("Configuring OSM connector. Model packages {}, procedure packages: {}", modelPackages,
 			executorPackages);
@@ -205,6 +205,31 @@ public class OsmConnectorConfiguration implements ImportBeanDefinitionRegistrar 
 			throw new OsmConnectorException("Multiple bean definitions for class " + type.getName());
 		}
 		return names[0];
+	}
+
+	private void validateConfiguration(String[] modelPackages, String[] executorPackages, String serializationFolder,
+		String serializationPrefix) {
+		if (modelPackages == null || modelPackages.length < 1) {
+			throw new OsmConnectorException("No modelPackages defined in @EnableOsmConnector annotation");
+		}
+		else if (executorPackages == null || executorPackages.length < 1) {
+			throw new OsmConnectorException("No executorPackages defined in @EnableOsmConnector annotation");
+		}
+		else if (StringUtils.isBlank(serializationFolder) && StringUtils.isNotBlank(serializationPrefix)) {
+			throw new OsmConnectorException("Serialization prefix requires a valid serializationFolder");
+		}
+		PackageNameValidator packageValidator = new PackageNameValidator();
+		List<String> packages = new ArrayList<>();
+		packages.addAll(Arrays.asList(modelPackages));
+		packages.addAll(Arrays.asList(executorPackages));
+		for (String packageName : packages) {
+			if (!packageValidator.apply(packageName)) {
+				throw new OsmConnectorException("Invalid package name: '" + packageName + "'");
+			}
+		}
+		if (!new SerializationPrefixValidator().apply(serializationPrefix)) {
+			throw new OsmConnectorException("Invalid serializationPrefix format: " + serializationPrefix);
+		}
 	}
 
 }
